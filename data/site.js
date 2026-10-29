@@ -21,14 +21,6 @@ window.SITE = {
     length: "0:30"
   },
 
-  // Real before/after pairs, cut from the showreel
-  beforeAfter: [
-    { label: "Basketball court", before: "img/showreel/ba-01-before.jpg", after: "img/showreel/ba-01-after.jpg" },
-    { label: "Interview, beige room", before: "img/showreel/ba-02-before.jpg", after: "img/showreel/ba-02-after.jpg" },
-    { label: "Studio, wide shot", before: "img/showreel/ba-03-before.jpg", after: "img/showreel/ba-03-after.jpg" },
-    { label: "Interview, black backdrop", before: "img/showreel/ba-04-before.jpg", after: "img/showreel/ba-04-after.jpg" }
-  ],
-
   clients: ["Carlotti Paris", "Sanctum Digital", "Little Red Door", "Scott Marshall Injury Attorneys", "Evidence Strong Show", "UON.EARTH", "Nightlife Card", "CleverBiz AI", "Innerspace"],
 
   // Upwork reviews, quoted word for word
@@ -44,7 +36,7 @@ window.SITE = {
 
   categories: ["Commercials", "Brand Stories", "Documentary", "YouTube & Podcasts", "Reels"],
 
-  // Order of projects on the site. Change it with tools/arrange.html or by hand.
+  // Order of projects on the site. Change it in the admin panel (admin/) or by hand.
   // Projects missing from this list go to the end.
   order: ["carlotti-paris", "scott-marshall", "innerspace", "lrd-new-york", "vocations", "uon-earth", "sanctum-promo", "evidence-strong", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "youtube-leo", "lrd-interviews", "youtube-business-fr"],
 

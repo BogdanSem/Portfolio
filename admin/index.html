@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Адмінка сайту</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0E0E0D; --panel: #1A1A19; --panel-2: #222220; --line: #262624; --line-strong: #3A3A37;
+  --ink: #EDEBE6; --ink-2: #B8B5AE; --ink-3: #8C8A85; --accent: #E0B36A; --ok: #8FD19E; --danger: #E5786A;
+  --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 24px 64px; }
+.top { position: sticky; top: 0; z-index: 5; background: rgba(14,14,13,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .wrap { padding-top: 14px; padding-bottom: 14px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: baseline; gap: 12px; }
+.brand h1 { margin: 0; font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.conn { font-size: 13px; color: var(--ink-3); }
+.conn b { color: var(--ink-2); font-weight: 500; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; white-space: nowrap; }
+.btn:hover:not(:disabled) { border-color: var(--ink-2); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 500; }
+.btn.accent { background: var(--accent); color: #1a1408; border-color: var(--accent); font-weight: 500; }
+.btn.small { min-height: 32px; padding: 0 12px; font-size: 13px; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+input[type="text"], input[type="password"], select { min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--panel); width: 100%; }
+label.field { display: grid; gap: 6px; font-size: 13px; color: var(--ink-3); }
+.hint { color: var(--ink-3); font-size: 14px; line-height: 1.55; margin: 0; }
+.status { font-size: 14px; color: var(--ink-2); }
+.status.ok { color: var(--ok); } .status.err { color: var(--danger); }
+.sec { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 40px 0 16px; }
+.sec h2 { margin: 0; font-size: 13px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.panel { border: 1px solid var(--line); border-radius: 10px; padding: 20px; background: var(--panel); }
+.setup { margin-top: 32px; display: grid; gap: 16px; max-width: 760px; }
+.setup h2 { margin: 0; font-size: 20px; font-weight: 500; }
+.setup ol { margin: 0; padding-left: 20px; color: var(--ink-2); line-height: 1.7; font-size: 14px; }
+.setup code { font-family: var(--mono); font-size: 12px; background: var(--panel-2); padding: 1px 6px; border-radius: 4px; }
+.setup .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .setup .two { grid-template-columns: 1fr; } }
+
+/* Cards */
+.grid { display: grid; gap: 20px 16px; }
+.grid.work { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.grid.reels { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.card { position: relative; border-radius: 8px; padding: 6px; border: 1px solid transparent; cursor: grab; user-select: none; transition: border-color .15s, opacity .15s; }
+.card:hover { border-color: var(--line-strong); }
+.card.dragging { opacity: .35; }
+.card.target { border-color: var(--accent); }
+.thumb { position: relative; aspect-ratio: 16 / 9; border-radius: 5px; overflow: hidden; background: var(--panel); }
+.reels .thumb { aspect-ratio: 9 / 16; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.num { position: absolute; left: 8px; top: 8px; font-family: var(--mono); font-size: 11px; background: rgba(14,14,13,.78); padding: 2px 7px; border-radius: 3px; }
+.badge { position: absolute; right: 8px; top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .05em; background: var(--accent); color: #1a1408; padding: 2px 7px; border-radius: 3px; }
+.meta { margin-top: 10px; display: grid; gap: 2px; }
+.title { font-size: 14px; font-weight: 500; line-height: 1.3; }
+.cat { font-size: 12px; color: var(--ink-3); }
+.actions { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+.icon { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.icon:disabled { opacity: .3; cursor: default; }
+.edit { flex: 1; min-height: 32px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; font-size: 13px; }
+.edit:hover, .icon:hover:not(:disabled) { border-color: var(--ink-2); }
+
+/* Editor */
+dialog.editor { width: min(1240px, 100vw); max-width: 100vw; height: min(900px, 100dvh); max-height: 100dvh; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); }
+dialog.editor::backdrop { background: rgba(0,0,0,.75); }
+.ed { height: 100%; display: grid; grid-template-rows: auto 1fr auto; }
+.ed-head, .ed-foot { padding: 14px 20px; display: flex; gap: 12px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.ed-foot { border-bottom: 0; border-top: 1px solid var(--line); }
+.ed-head h2 { margin: 0; font-size: 18px; font-weight: 500; }
+.ed-body { overflow: auto; padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .ed-body { grid-template-columns: 1fr; } dialog.editor { border-radius: 0; height: 100dvh; } }
+.stage { background: #000; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 300px; position: relative; }
+.stage video { display: block; max-width: 100%; max-height: 58vh; }
+.drop { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--ink-2); border: 2px dashed var(--line-strong); border-radius: 6px; text-align: center; padding: 24px; }
+.drop.over { border-color: var(--accent); color: var(--ink); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.tc { font-family: var(--mono); font-size: 13px; color: var(--ink-2); min-width: 112px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin-top: 10px; }
+kbd { font-family: var(--mono); font-size: 11px; border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; opacity: .7; }
+.side { display: grid; gap: 16px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 10px; }
+.box h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.coverbox { aspect-ratio: 16 / 9; background: var(--panel); border-radius: 4px; overflow: hidden; position: relative; }
+.coverbox.v { aspect-ratio: 9 / 16; max-height: 360px; margin: 0 auto; width: auto; height: 360px; }
+.coverbox img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.tray.v { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+.fr { position: relative; border-radius: 4px; overflow: hidden; background: var(--panel); aspect-ratio: 16 / 9; }
+.tray.v .fr { aspect-ratio: 9 / 16; }
+.fr img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fr .n { position: absolute; left: 4px; top: 4px; font-family: var(--mono); font-size: 10px; background: rgba(0,0,0,.7); padding: 1px 5px; border-radius: 2px; }
+.fr .new { position: absolute; left: 4px; bottom: 4px; font-family: var(--mono); font-size: 9px; background: var(--accent); color: #1a1408; padding: 1px 4px; border-radius: 2px; }
+.fr .x { position: absolute; right: 4px; top: 4px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(0,0,0,.75); cursor: pointer; font-size: 11px; }
+.fr .mv { position: absolute; right: 4px; bottom: 4px; display: flex; gap: 3px; }
+.fr .mv button { width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(0,0,0,.75); cursor: pointer; font-size: 12px; }
+.empty { color: var(--ink-3); font-size: 13px; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 20; background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: 999px; padding: 12px 20px; font-size: 14px; max-width: calc(100vw - 32px); box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.toast.ok { border-color: rgba(143,209,158,.5); } .toast.err { border-color: rgba(229,120,106,.6); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="brand"><h1>Адмінка сайту</h1><span class="conn" id="conn"></span></div>
+    <div class="row">
+      <a class="btn" href="../" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none">Відкрити сайт</a>
+      <button class="btn" id="discard" disabled>Скасувати зміни</button>
+      <button class="btn primary" id="publish" disabled>Опублікувати</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="panel setup" id="setup" hidden>
+    <h2>Підключення до GitHub (один раз)</h2>
+    <p class="hint">Адмінка зберігає зміни прямо в ваш репозиторій на GitHub, і сайт оновлюється сам за 1–2 хвилини. Для цього потрібен ключ доступу:</p>
+    <ol>
+      <li>Відкрийте <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</li>
+      <li><b>Token name</b>: <code>portfolio admin</code>. <b>Expiration</b>: оберіть потрібний строк, наприклад рік.</li>
+      <li><b>Repository access</b> → <code>Only select repositories</code> → оберіть репозиторій сайту.</li>
+      <li><b>Permissions</b> → <b>Repository permissions</b> → <code>Contents</code> → <code>Read and write</code>.</li>
+      <li>Натисніть <b>Generate token</b>, скопіюйте ключ (починається з <code>github_pat_</code>) і вставте нижче.</li>
+    </ol>
+    <div class="two">
+      <label class="field">Репозиторій (логін/назва)
+        <input type="text" id="repo" placeholder="semchyshyn/portfolio" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="field">Ключ доступу
+        <input type="password" id="token" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+      </label>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="connect">Підключити</button>
+      <button class="btn" id="localMode">Працювати з папкою на компʼютері</button>
+      <span class="status" id="setupStatus" role="status"></span>
+    </div>
+    <p class="hint">Ключ зберігається тільки в цьому браузері на цьому компʼютері. Не відкривайте адмінку з ключем на чужих пристроях.</p>
+  </section>
+
+  <div id="board" hidden>
+    <div class="sec"><h2>Work — сітка робіт</h2><span class="hint">Перетягуйте картки, щоб змінити порядок</span></div>
+    <div class="grid work" id="grid-work" data-g="work"></div>
+    <div class="sec"><h2>Social — стрічка шортсів</h2><span class="hint">Сюди потрапляють проєкти з <code>vertical: true</code></span></div>
+    <div class="grid reels" id="grid-reels" data-g="reels"></div>
+  </div>
+</main>
+
+<dialog class="editor" id="editor" aria-labelledby="edTitle">
+  <div class="ed">
+    <div class="ed-head">
+      <h2 id="edTitle">Проєкт</h2>
+      <button class="icon" id="edClose" aria-label="Закрити">✕</button>
+    </div>
+    <div class="ed-body">
+      <div style="min-width:0">
+        <div class="stage" id="stage">
+          <video id="video" playsinline muted hidden></video>
+          <div class="drop" id="drop">
+            <div>Перетягніть сюди відеофайл проєкту (mp4, mov)</div>
+            <label class="btn primary" style="display:inline-flex;align-items:center">Вибрати файл
+              <input type="file" id="file" accept="video/*" hidden>
+            </label>
+            <div class="hint">Краще брати фінальний експорт з DaVinci. Відео не завантажується в інтернет, з нього беруться лише кадри.</div>
+          </div>
+        </div>
+        <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Позиція у відео" disabled>
+        <div class="controls">
+          <button class="btn small" id="play" disabled>Play</button>
+          <button class="btn small" id="back1s" disabled>−1 с</button>
+          <button class="btn small" id="backF" disabled>−1 кадр</button>
+          <button class="btn small" id="fwdF" disabled>+1 кадр</button>
+          <button class="btn small" id="fwd1s" disabled>+1 с</button>
+          <span class="tc" id="tc">00:00:00:00</span>
+          <label class="btn small" style="display:inline-flex;align-items:center" id="otherFile" hidden>Інший файл<input type="file" accept="video/*" hidden></label>
+          <select id="fps" aria-label="Кадрів на секунду" style="width:auto;min-height:32px"><option>23.976</option><option selected>25</option><option>29.97</option><option>30</option><option>50</option><option>60</option></select>
+        </div>
+        <div class="controls">
+          <button class="btn accent" id="setCover" disabled>Зробити обкладинкою <kbd>C</kbd></button>
+          <button class="btn primary" id="addFrame" disabled>Додати в кадри <kbd>F</kbd></button>
+        </div>
+        <p class="hint" style="margin-top:10px">Пробіл: play/pause. ← →: по кадру, з Shift: по секунді.</p>
+      </div>
+      <aside class="side">
+        <div class="box">
+          <h3>Обкладинка <button class="btn small" id="coverReset" hidden>Повернути стару</button></h3>
+          <div class="coverbox" id="coverBox"></div>
+        </div>
+        <div class="box">
+          <h3><span>Вибрані кадри <span class="hint" id="fcount"></span></span></h3>
+          <div class="tray" id="tray"></div>
+          <p class="hint" style="font-size:13px">Порядок тут = порядок на сторінці проєкту. Стрілками переставляйте, ✕ прибирає кадр.</p>
+        </div>
+      </aside>
+    </div>
+    <div class="ed-foot">
+      <span class="hint" style="font-size:13px">Зміни потраплять на сайт після «Опублікувати».</span>
+      <button class="btn primary" id="edDone">Готово</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function toast(msg, kind, ms) {
+    document.querySelectorAll('.toast').forEach(function (x) { x.remove(); });
+    var t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.setAttribute('role', 'status'); t.textContent = msg;
+    var d = document.getElementById('editor');
+    (d && d.open ? d : document.body).appendChild(t); setTimeout(function () { t.remove(); }, ms || 4000);
+  }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+
+  /* ---------------- Storage backends ---------------- */
+  // GitHub: reads site.js through the API, writes everything as one commit.
+  function GitHub(repo, token) {
+    var base = 'https://api.github.com/repos/' + repo;
+    var prefix = '', branch = 'main';
+    function api(path, opts) {
+      opts = opts || {};
+      opts.headers = Object.assign({ Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, opts.headers || {});
+      return fetch(base + path, opts).then(function (r) {
+        if (!r.ok) return r.json().catch(function () { return {}; }).then(function (j) {
+          var m = j.message || ('HTTP ' + r.status);
+          if (r.status === 401) m = 'ключ недійсний або прострочений';
+          if (r.status === 404) m = 'репозиторій не знайдено або ключ не має до нього доступу';
+          if (r.status === 403) m = 'ключу бракує дозволу Contents: Read and write';
+          throw new Error(m);
+        });
+        if (r.status === 204) return null;
+        return opts.headers.Accept === 'application/vnd.github.raw' ? r.text() : r.json();
+      });
+    }
+    function head() {
+      return api('/git/ref/heads/' + branch).then(function (ref) {
+        return api('/git/commits/' + ref.object.sha).then(function (c) { return { commit: ref.object.sha, tree: c.tree.sha }; });
+      });
+    }
+    return {
+      label: function () { return 'GitHub: <b>' + esc(repo) + '</b>'; },
+      // Find the branch and where the site lives inside the repo
+      init: function () {
+        return api('').then(function (info) {
+          branch = info.default_branch;
+          return head();
+        }).then(function (h) {
+          return api('/git/trees/' + h.tree + '?recursive=1');
+        }).then(function (t) {
+          var hit = t.tree.filter(function (e) { return /(^|\/)data\/site\.js$/.test(e.path); })
+            .sort(function (a, b) { return a.path.length - b.path.length; })[0];
+          if (!hit) throw new Error('у репозиторії не знайдено data/site.js');
+          prefix = hit.path.replace(/data\/site\.js$/, '');
+        });
+      },
+      readSite: function () {
+        return head().then(function (h) {
+          return api('/contents/' + prefix + 'data/site.js?ref=' + h.commit, { headers: { Accept: 'application/vnd.github.raw' } });
+        }).catch(function (e) { throw e; });
+      },
+      // writes: [{ path, blob? , text? }], deletes: [path]
+      commit: function (writes, deletes, message) {
+        var h;
+        return head().then(function (x) {
+          h = x;
+          return api('/git/trees/' + h.tree + '?recursive=1');
+        }).then(function (t) {
+          var existing = {}; t.tree.forEach(function (e) { existing[e.path] = true; });
+          return Promise.all(writes.map(function (w) {
+            var body = w.text != null ? Promise.resolve({ content: w.text, encoding: 'utf-8' })
+              : blobToB64(w.blob).then(function (b) { return { content: b, encoding: 'base64' }; });
+            return body.then(function (b) { return api('/git/blobs', { method: 'POST', body: JSON.stringify(b) }); })
+              .then(function (r) { return { path: prefix + w.path, mode: '100644', type: 'blob', sha: r.sha }; });
+          })).then(function (entries) {
+            deletes.forEach(function (d) {
+              if (existing[prefix + d]) entries.push({ path: prefix + d, mode: '100644', type: 'blob', sha: null });
+            });
+            return api('/git/trees', { method: 'POST', body: JSON.stringify({ base_tree: h.tree, tree: entries }) });
+          });
+        }).then(function (tree) {
+          return api('/git/commits', { method: 'POST', body: JSON.stringify({ message: message, tree: tree.sha, parents: [h.commit] }) });
+        }).then(function (c) {
+          return api('/git/refs/heads/' + branch, { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) });
+        });
+      }
+    };
+  }
+  // Local folder (Chrome / Edge), for working with the site on the computer
+  function Local(dir) {
+    function file(path, create) {
+      var parts = path.split('/'), name = parts.pop();
+      return parts.reduce(function (p, d) { return p.then(function (h) { return h.getDirectoryHandle(d, { create: !!create }); }); }, Promise.resolve(dir))
+        .then(function (h) { return { dir: h, name: name }; });
+    }
+    return {
+      label: function () { return 'Папка: <b>' + esc(dir.name) + '</b>'; },
+      init: function () { return file('data/site.js').then(function (f) { return f.dir.getFileHandle(f.name); }); },
+      readSite: function () { return file('data/site.js').then(function (f) { return f.dir.getFileHandle(f.name); }).then(function (h) { return h.getFile(); }).then(function (f) { return f.text(); }); },
+      commit: async function (writes, deletes) {
+        for (var i = 0; i < writes.length; i++) {
+          var f = await file(writes[i].path, true);
+          var fh = await f.dir.getFileHandle(f.name, { create: true });
+          var w = await fh.createWritable(); await w.write(writes[i].text != null ? writes[i].text : writes[i].blob); await w.close();
+        }
+        for (var j = 0; j < deletes.length; j++) {
+          try { var g = await file(deletes[j]); await g.dir.removeEntry(g.name); } catch (e) {}
+        }
+      }
+    };
+  }
+  function blobToB64(blob) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { res(String(r.result).split(',')[1]); };
+      r.onerror = rej; r.readAsDataURL(blob);
+    });
+  }
+
+  /* ---------------- State ---------------- */
+  var store = null, SITE = null, bySlug = {};
+  var savedOrder = [], order = [];
+  var edits = {};   // slug -> { cover: {blob,url}|null, frames: [{name, url, blob?}] }
+
+  function parseSite(text) {
+    var w = {};
+    new Function('window', text)(w);
+    if (!w.SITE || !w.SITE.projects) throw new Error('data/site.js не вдалося прочитати');
+    return w.SITE;
+  }
+  function loadSite() {
+    return store.readSite().then(function (text) {
+      SITE = parseSite(text);
+      bySlug = {}; SITE.projects.forEach(function (p) { bySlug[p.slug] = p; });
+      savedOrder = (SITE.order || []).filter(function (s) { return bySlug[s]; });
+      SITE.projects.forEach(function (p) { if (savedOrder.indexOf(p.slug) < 0) savedOrder.push(p.slug); });
+      order = savedOrder.slice(); edits = {};
+      render();
+    });
+  }
+  function dirty() { return order.join() !== savedOrder.join() || Object.keys(edits).length > 0; }
+  function syncButtons() {
+    var n = Object.keys(edits).length + (order.join() !== savedOrder.join() ? 1 : 0);
+    $('publish').disabled = !n;
+    $('discard').disabled = !n;
+    $('publish').textContent = n ? 'Опублікувати (' + n + ')' : 'Опублікувати';
+  }
+  window.addEventListener('beforeunload', function (e) { if (store && dirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* ---------------- Board ---------------- */
+  var ver = Date.now();
+  function imgUrl(slug, name) { return '../img/' + slug + '/' + name + '?v=' + ver; }
+  function group(g) { return order.filter(function (s) { return !!bySlug[s].vertical === (g === 'reels'); }); }
+  function setGroup(g, list) { order = g === 'reels' ? group('work').concat(list) : list.concat(group('reels')); }
+  function render() {
+    ['work', 'reels'].forEach(function (g) {
+      var list = group(g);
+      $('grid-' + g).innerHTML = list.map(function (slug, i) {
+        var p = bySlug[slug], e = edits[slug];
+        var src = e && e.cover ? e.cover.url : imgUrl(slug, 'cover.jpg');
+        return '<div class="card" draggable="true" data-i="' + i + '" data-slug="' + esc(slug) + '">' +
+          '<div class="thumb"><img src="' + esc(src) + '" alt=""><span class="num">' + (i < 9 ? '0' : '') + (i + 1) + '</span>' +
+          (e ? '<span class="badge">ЗМІНЕНО</span>' : '') + '</div>' +
+          '<div class="meta"><div class="title">' + esc(p.title) + '</div><div class="cat">' + esc(p.category) + ' · ' + (p.frames || []).length + ' кадр.</div></div>' +
+          '<div class="actions">' +
+          '<button class="icon" data-move="-1" aria-label="Раніше: ' + esc(p.title) + '"' + (i === 0 ? ' disabled' : '') + '>‹</button>' +
+          '<button class="edit" data-edit>Обкладинка і кадри</button>' +
+          '<button class="icon" data-move="1" aria-label="Пізніше: ' + esc(p.title) + '"' + (i === list.length - 1 ? ' disabled' : '') + '>›</button>' +
+          '</div></div>';
+      }).join('');
+    });
+    syncButtons();
+  }
+  var from = null, fromG = null;
+  ['work', 'reels'].forEach(function (g) {
+    var el = $('grid-' + g);
+    el.addEventListener('click', function (e) {
+      var c = e.target.closest('.card'); if (!c) return;
+      if (e.target.closest('[data-edit]')) { openEditor(c.dataset.slug); return; }
+      var b = e.target.closest('[data-move]'); if (!b) return;
+      var list = group(g), i = +c.dataset.i, j = i + +b.dataset.move;
+      if (j < 0 || j >= list.length) return;
+      list.splice(j, 0, list.splice(i, 1)[0]); setGroup(g, list); render();
+      var again = el.querySelector('.card[data-i="' + j + '"] [data-move="' + b.dataset.move + '"]');
+      if (again && !again.disabled) again.focus();
+    });
+    el.addEventListener('dragstart', function (e) {
+      var c = e.target.closest('.card'); if (!c) return;
+      from = +c.dataset.i; fromG = g; c.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', c.dataset.slug); } catch (x) {}
+    });
+    el.addEventListener('dragover', function (e) {
+      var c = e.target.closest('.card'); if (!c || from === null || fromG !== g) return;
+      e.preventDefault();
+      document.querySelectorAll('.card.target').forEach(function (x) { if (x !== c) x.classList.remove('target'); });
+      c.classList.add('target');
+    });
+    el.addEventListener('drop', function (e) {
+      var c = e.target.closest('.card'); if (!c || from === null || fromG !== g) return;
+      e.preventDefault();
+      var list = group(g); list.splice(+c.dataset.i, 0, list.splice(from, 1)[0]);
+      setGroup(g, list); from = null; render();
+    });
+    el.addEventListener('dragend', function () {
+      from = null;
+      document.querySelectorAll('.card').forEach(function (x) { x.classList.remove('dragging', 'target'); });
+    });
+  });
+
+  /* ---------------- Editor ---------------- */
+  var dlg = $('editor'), video = $('video'), scrub = $('scrub');
+  var cur = null, draft = null;   // slug, { cover, frames }
+  function openEditor(slug) {
+    cur = slug;
+    var p = bySlug[slug], e = edits[slug];
+    draft = e ? { cover: e.cover, frames: e.frames.slice() }
+      : { cover: null, frames: (p.frames || []).map(function (f) { return { name: f, url: imgUrl(slug, f) }; }) };
+    $('edTitle').textContent = p.title;
+    $('coverBox').classList.toggle('v', !!p.vertical);
+    $('tray').classList.toggle('v', !!p.vertical);
+    drawDraft();
+    dlg.showModal();
+  }
+  function closeEditor(save) {
+    if (save && cur) {
+      var p = bySlug[cur];
+      var same = !draft.cover && draft.frames.map(function (f) { return f.name; }).join() === (p.frames || []).join();
+      if (same) delete edits[cur]; else edits[cur] = draft;
+      render();
+    }
+    video.pause();
+    dlg.close();
+  }
+  $('edDone').addEventListener('click', function () { closeEditor(true); });
+  $('edClose').addEventListener('click', function () { closeEditor(true); });
+  dlg.addEventListener('cancel', function (e) { e.preventDefault(); closeEditor(true); });
+  $('coverReset').addEventListener('click', function () { draft.cover = null; drawDraft(); });
+
+  function drawDraft() {
+    var src = draft.cover ? draft.cover.url : imgUrl(cur, 'cover.jpg');
+    $('coverBox').innerHTML = '<img src="' + esc(src) + '" alt="Обкладинка">';
+    $('coverReset').hidden = !draft.cover;
+    $('tray').innerHTML = draft.frames.length ? draft.frames.map(function (f, i) {
+      return '<div class="fr"><img src="' + esc(f.url) + '" alt="Кадр ' + (i + 1) + '">' +
+        '<span class="n">' + (i + 1) + '</span>' + (f.blob ? '<span class="new">НОВИЙ</span>' : '') +
+        '<button class="x" data-del="' + i + '" aria-label="Прибрати кадр ' + (i + 1) + '">✕</button>' +
+        '<span class="mv"><button data-up="' + i + '" aria-label="Раніше">‹</button><button data-down="' + i + '" aria-label="Пізніше">›</button></span></div>';
+    }).join('') : '<p class="empty">Кадрів поки немає. Відкрийте відео і натисніть «Додати в кадри».</p>';
+    $('fcount').textContent = draft.frames.length ? '(' + draft.frames.length + ')' : '';
+  }
+  $('tray').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var i, fr = draft.frames;
+    if (b.dataset.del != null) fr.splice(+b.dataset.del, 1);
+    else if (b.dataset.up != null && (i = +b.dataset.up) > 0) fr.splice(i - 1, 0, fr.splice(i, 1)[0]);
+    else if (b.dataset.down != null && (i = +b.dataset.down) < fr.length - 1) fr.splice(i + 1, 0, fr.splice(i, 1)[0]);
+    drawDraft();
+  });
+
+  // Video
+  function loadVideo(file) {
+    if (!file || !/^video\//.test(file.type)) { toast('Це не відеофайл. Оберіть mp4 або mov.', 'err'); return; }
+    video.src = URL.createObjectURL(file); video.hidden = false; $('drop').hidden = true; $('otherFile').hidden = false;
+  }
+  $('file').addEventListener('change', function (e) { loadVideo(e.target.files[0]); e.target.value = ''; });
+  $('otherFile').querySelector('input').addEventListener('change', function (e) { loadVideo(e.target.files[0]); e.target.value = ''; });
+  var stage = $('stage');
+  stage.addEventListener('dragover', function (e) { e.preventDefault(); $('drop').classList.add('over'); });
+  stage.addEventListener('dragleave', function () { $('drop').classList.remove('over'); });
+  stage.addEventListener('drop', function (e) { e.preventDefault(); $('drop').classList.remove('over'); loadVideo(e.dataTransfer.files[0]); });
+  video.addEventListener('loadedmetadata', function () {
+    ['play', 'back1s', 'backF', 'fwdF', 'fwd1s', 'setCover', 'addFrame'].forEach(function (id) { $(id).disabled = false; });
+    scrub.disabled = false; video.currentTime = Math.min(1, video.duration / 2);
+  });
+  function fps() { return parseFloat($('fps').value); }
+  function seek(t) { video.pause(); video.currentTime = Math.max(0, Math.min(video.duration - 0.001, t)); }
+  function tc(t) {
+    var f = fps(), total = Math.round(t * f), fr = Math.round(f), ff = total % fr, s = Math.floor(total / fr);
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(Math.floor(s / 3600)) + ':' + p(Math.floor(s / 60) % 60) + ':' + p(s % 60) + ':' + p(ff);
+  }
+  function sync() {
+    $('tc').textContent = tc(video.currentTime);
+    if (video.duration) scrub.value = Math.round(video.currentTime / video.duration * 1000);
+    $('play').textContent = video.paused ? 'Play' : 'Pause';
+  }
+  ['timeupdate', 'seeked', 'play', 'pause'].forEach(function (ev) { video.addEventListener(ev, sync); });
+  scrub.addEventListener('input', function () { seek(scrub.value / 1000 * video.duration); });
+  $('play').addEventListener('click', function () { video.paused ? video.play() : video.pause(); });
+  $('back1s').addEventListener('click', function () { seek(video.currentTime - 1); });
+  $('fwd1s').addEventListener('click', function () { seek(video.currentTime + 1); });
+  $('backF').addEventListener('click', function () { seek(video.currentTime - 1 / fps()); });
+  $('fwdF').addEventListener('click', function () { seek(video.currentTime + 1 / fps()); });
+  dlg.addEventListener('keydown', function (e) {
+    if (video.hidden) return;
+    var a = document.activeElement;
+    if (a && /INPUT|SELECT/.test(a.tagName) && a.type !== 'range') return;
+    var k = e.key;
+    if (k === ' ') { e.preventDefault(); $('play').click(); }
+    else if (k === 'ArrowLeft') { e.preventDefault(); seek(video.currentTime - (e.shiftKey ? 1 : 1 / fps())); }
+    else if (k === 'ArrowRight') { e.preventDefault(); seek(video.currentTime + (e.shiftKey ? 1 : 1 / fps())); }
+    else if (/^[cCсС]$/.test(k)) grab().then(setCover);
+    else if (/^[fFаА]$/.test(k)) grab().then(addFrame);
+  });
+  function grab() {
+    video.pause();
+    var w = video.videoWidth, h = video.videoHeight, s = Math.min(1, 1600 / Math.max(w, h));
+    var c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+    var ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(video, 0, 0, c.width, c.height);
+    return new Promise(function (res) { c.toBlob(function (b) { res({ blob: b, url: URL.createObjectURL(b) }); }, 'image/jpeg', 0.86); });
+  }
+  function setCover(f) { draft.cover = f; drawDraft(); toast('Обкладинку вибрано: ' + tc(video.currentTime), 'ok', 2000); }
+  function addFrame(f) {
+    f.name = 'f' + Date.now().toString(36) + '.jpg';
+    draft.frames.push(f); drawDraft(); toast('Кадр додано: ' + tc(video.currentTime), 'ok', 2000);
+  }
+  $('setCover').addEventListener('click', function () { grab().then(setCover); });
+  $('addFrame').addEventListener('click', function () { grab().then(addFrame); });
+
+  /* ---------------- Publish ---------------- */
+  function applyToSite(text) {
+    var line = 'order: [' + order.map(function (s) { return '"' + s + '"'; }).join(', ') + '],';
+    if (/order:\s*\[[^\]]*\],?/.test(text)) text = text.replace(/order:\s*\[[^\]]*\],?/, line);
+    else text = text.replace(/(\n\s*projects:\s*\[)/, '\n  ' + line + '\n$1');
+    Object.keys(edits).forEach(function (slug) {
+      var at = text.indexOf('slug: "' + slug + '"'); if (at < 0) return;
+      var next = text.indexOf('slug: "', at + 7), end = next < 0 ? text.length : next;
+      var block = text.slice(at, end);
+      var fl = 'frames: [' + edits[slug].frames.map(function (f) { return '"' + f.name + '"'; }).join(', ') + ']';
+      block = /frames:\s*\[[^\]]*\]/.test(block) ? block.replace(/frames:\s*\[[^\]]*\]/, fl) : block.replace(/(slug: "[^"]+",)/, '$1\n      ' + fl + ',');
+      text = text.slice(0, at) + block + text.slice(end);
+    });
+    return text;
+  }
+  $('publish').addEventListener('click', function () {
+    var btn = $('publish'); btn.disabled = true; btn.textContent = 'Публікую…';
+    var writes = [], deletes = [];
+    Object.keys(edits).forEach(function (slug) {
+      var e = edits[slug], keep = {};
+      if (e.cover) writes.push({ path: 'img/' + slug + '/cover.jpg', blob: e.cover.blob });
+      e.frames.forEach(function (f) { keep[f.name] = true; if (f.blob) writes.push({ path: 'img/' + slug + '/' + f.name, blob: f.blob }); });
+      (bySlug[slug].frames || []).forEach(function (f) { if (!keep[f]) deletes.push('img/' + slug + '/' + f); });
+    });
+    store.readSite().then(function (text) {
+      var out = applyToSite(text);
+      parseSite(out); // safety check before writing
+      writes.push({ path: 'data/site.js', text: out });
+      return store.commit(writes, deletes, 'Update portfolio from admin');
+    }).then(function () {
+      ver = Date.now();
+      toast(store.isGit ? 'Опубліковано. Сайт оновиться за 1–2 хвилини.' : 'Збережено в папку сайту.', 'ok', 6000);
+      return loadSite();
+    }).catch(function (err) {
+      toast('Не вдалося опублікувати: ' + err.message, 'err', 8000);
+      syncButtons();
+    });
+  });
+  $('discard').addEventListener('click', function () {
+    if (!confirmDiscard()) return;
+    order = savedOrder.slice(); edits = {}; render();
+  });
+  function confirmDiscard() { return window.confirm('Скасувати всі неопубліковані зміни?'); }
+
+  /* ---------------- Connect ---------------- */
+  function guessRepo() {
+    var m = location.hostname.match(/^([^.]+)\.github\.io$/i);
+    if (!m) return '';
+    var seg = location.pathname.split('/').filter(Boolean)[0];
+    return m[1] + '/' + (seg && seg !== 'admin' ? seg : m[1] + '.github.io');
+  }
+  function start(s, isGit) {
+    s.isGit = isGit;
+    return s.init().then(function () {
+      store = s;
+      $('setup').hidden = true; $('board').hidden = false;
+      $('conn').innerHTML = s.label() + ' · <a href="#" id="logout">відключити</a>';
+      $('logout').addEventListener('click', function (e) {
+        e.preventDefault();
+        if (dirty() && !confirmDiscard()) return;
+        lsSet('pa_token', null); location.reload();
+      });
+      return loadSite();
+    });
+  }
+  function showSetup(msg) {
+    $('setup').hidden = false; $('board').hidden = true;
+    $('repo').value = lsGet('pa_repo') || guessRepo();
+    if (msg) { $('setupStatus').textContent = msg; $('setupStatus').className = 'status err'; }
+  }
+  $('connect').addEventListener('click', function () {
+    var repo = $('repo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$|\/$/g, '');
+    var token = $('token').value.trim();
+    if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) { $('setupStatus').textContent = 'Впишіть репозиторій у форматі логін/назва.'; $('setupStatus').className = 'status err'; return; }
+    if (!token) { $('setupStatus').textContent = 'Вставте ключ доступу.'; $('setupStatus').className = 'status err'; return; }
+    $('setupStatus').textContent = 'Перевіряю…'; $('setupStatus').className = 'status';
+    start(GitHub(repo, token), true).then(function () {
+      lsSet('pa_repo', repo); lsSet('pa_token', token);
+    }).catch(function (e) { showSetup('Не вдалося підключитись: ' + e.message + '.'); });
+  });
+  $('localMode').addEventListener('click', function () {
+    if (!('showDirectoryPicker' in window)) { $('setupStatus').textContent = 'Робота з папкою працює лише в Chrome або Edge.'; $('setupStatus').className = 'status err'; return; }
+    window.showDirectoryPicker({ id: 'portfolio-site', mode: 'readwrite' }).then(function (dir) {
+      return start(Local(dir), false);
+    }).catch(function (e) {
+      if (e && e.name === 'AbortError') return;
+      showSetup('Це не папка сайту: оберіть папку, де лежить index.html і папка data.');
+    });
+  });
+
+  var t = lsGet('pa_token'), r = lsGet('pa_repo');
+  if (t && r) {
+    $('conn').textContent = 'Підключаюсь…';
+    start(GitHub(r, t), true).catch(function (e) { $('conn').textContent = ''; showSetup('Не вдалося підключитись: ' + e.message + '.'); });
+  } else showSetup();
+})();
+</script>
+</body>
+</html>

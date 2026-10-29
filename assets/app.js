@@ -17,7 +17,6 @@
   var PLAY_SM = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>';
   var ARROW_L = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
   var ARROW_R = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
-  var KNOB = '<svg width="10" height="14" viewBox="0 0 10 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2L2 7l5 5"/></svg><svg width="10" height="14" viewBox="0 0 10 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2l5 5-5 5"/></svg>';
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -73,43 +72,67 @@
     });
   }
 
-  // Lightbox for vertical videos and versions
-  var dlg;
-  function openVideo(id, vertical, caption) {
+  // Viewer for vertical videos: player + project details on the side, arrows between videos
+  var dlg, vList = [], vIndex = 0;
+  var CHEV_L = '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+  var CHEV_R = '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+  function infoHTML(v) {
+    var p = v.project, rows = [['Client', p.client], ['Role', p.role], ['Format', p.format], ['Length', p.length]]
+      .filter(function (r) { return r[1]; });
+    return '<p class="v-eyebrow">' + esc(p.category.toUpperCase()) + '</p>' +
+      '<h2 class="v-title">' + esc(v.title) + '</h2>' +
+      (v.isVersion ? '<p class="v-sub">From “' + esc(p.title) + '”</p>' : (p.subtitle ? '<p class="v-sub">' + esc(p.subtitle) + '</p>' : '')) +
+      (rows.length ? '<dl class="v-rows">' + rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>' : '') +
+      (p.brief ? '<h3>The brief</h3><p>' + esc(p.brief) + '</p>' : '') +
+      (p.did ? '<h3>What I did</h3><p>' + esc(p.did) + '</p>' : '') +
+      (p.quote ? '<blockquote>“' + esc(p.quote.text) + '”<cite>' + esc(p.quote.source) + '</cite></blockquote>' : '') +
+      '<a class="v-link" href="project.html?p=' + encodeURIComponent(p.slug) + '">Open project page</a>';
+  }
+  function showItem(i) {
+    vIndex = (i + vList.length) % vList.length;
+    var v = vList[vIndex];
+    $('.v-media', dlg).innerHTML = '<iframe src="' + esc(vimeoSrc(v.vimeo)) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="' + esc(v.title) + '"></iframe>';
+    var info = $('.v-info', dlg);
+    info.innerHTML = infoHTML(v) + (vList.length > 1 ? '<p class="v-count">' + (vIndex + 1) + ' / ' + vList.length + '</p>' : '');
+    info.scrollTop = 0;
+    dlg.classList.toggle('single', vList.length < 2);
+  }
+  function openViewer(list, i) {
     if (!dlg) {
       dlg = document.createElement('dialog');
-      dlg.className = 'lightbox';
+      dlg.className = 'viewer';
       dlg.setAttribute('aria-label', 'Video player');
-      dlg.innerHTML = '<div class="inner"><button type="button" class="close" aria-label="Close video">' +
+      dlg.innerHTML = '<button type="button" class="v-close" aria-label="Close video">' +
         '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
-        '<div class="box"></div><div class="caption"></div></div>';
+        '<div class="v-stage">' +
+        '<button type="button" class="v-nav v-prev" aria-label="Previous video">' + CHEV_L + '</button>' +
+        '<div class="v-card"><div class="v-media"></div><aside class="v-info"></aside></div>' +
+        '<button type="button" class="v-nav v-next" aria-label="Next video">' + CHEV_R + '</button>' +
+        '</div>';
       document.body.appendChild(dlg);
-      $('.close', dlg).addEventListener('click', function () { dlg.close(); });
-      dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.classList.contains('inner')) dlg.close(); });
-      dlg.addEventListener('close', function () { $('.box', dlg).innerHTML = ''; });
+      $('.v-close', dlg).addEventListener('click', function () { dlg.close(); });
+      $('.v-prev', dlg).addEventListener('click', function () { showItem(vIndex - 1); });
+      $('.v-next', dlg).addEventListener('click', function () { showItem(vIndex + 1); });
+      dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.classList.contains('v-stage')) dlg.close(); });
+      dlg.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); showItem(vIndex - 1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); showItem(vIndex + 1); }
+      });
+      // Swipe on phones
+      var x0 = null;
+      dlg.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      dlg.addEventListener('touchend', function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0; x0 = null;
+        if (Math.abs(dx) > 60 && !e.target.closest('.v-info')) showItem(vIndex + (dx < 0 ? 1 : -1));
+      });
+      dlg.addEventListener('close', function () { $('.v-media', dlg).innerHTML = ''; document.body.style.overflow = ''; });
     }
-    var box = $('.box', dlg);
-    box.className = 'box ' + (vertical ? 'is-vertical' : 'is-wide');
-    box.innerHTML = '<iframe src="' + esc(vimeoSrc(id)) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Video"></iframe>';
-    $('.caption', dlg).innerHTML = caption || '';
+    vList = list;
+    showItem(i);
+    document.body.style.overflow = 'hidden';
     dlg.showModal();
-  }
-
-  // Before / after wipe
-  function baHTML(pair, id) {
-    return '<div class="ba" style="--pos:50%">' +
-      '<img class="before" src="' + esc(pair.before) + '" alt="' + esc(pair.label) + ', original">' +
-      '<img class="after" src="' + esc(pair.after) + '" alt="' + esc(pair.label) + ', graded">' +
-      '<div class="line"></div><div class="knob" aria-hidden="true">' + KNOB + '</div>' +
-      '<span class="label l">GRADED</span><span class="label r">ORIGINAL</span>' +
-      '<label class="sr-only" for="' + id + '">Compare original and graded frame</label>' +
-      '<input id="' + id + '" type="range" min="0" max="100" value="50">' +
-      '</div>';
-  }
-  function wireBA(root) {
-    var el = $('.ba', root);
-    var input = $('input', el);
-    input.addEventListener('input', function () { el.style.setProperty('--pos', input.value + '%'); });
+    $('.v-close', dlg).focus();
   }
 
   function contactsHTML() {
@@ -128,7 +151,7 @@
     S.projects.forEach(function (p) {
       if (p.vertical) list.push({ vimeo: p.vimeo, title: p.title, client: p.client, img: cover(p), project: p });
       (p.versions || []).forEach(function (v) {
-        list.push({ vimeo: v.vimeo, title: v.title, client: p.title, img: v.cover, project: p });
+        list.push({ vimeo: v.vimeo, title: v.title, client: p.title, img: v.cover, project: p, isVersion: true });
       });
     });
     return list;
@@ -190,8 +213,7 @@
     rail.addEventListener('click', function (e) {
       var b = e.target.closest('.reel');
       if (!b) return;
-      var v = vids[+b.getAttribute('data-i')];
-      openVideo(v.vimeo, true, esc(v.title) + ' · <a href="project.html?p=' + encodeURIComponent(v.project.slug) + '">Project details</a>');
+      openViewer(vids, +b.getAttribute('data-i'));
     });
     var prev = $('#prev'), next = $('#next');
     prev.innerHTML = ARROW_L; next.innerHTML = ARROW_R;
@@ -206,24 +228,6 @@
     window.addEventListener('resize', arrows);
     arrows();
 
-    // Before / after with tabs
-    var baWrap = $('#ba');
-    var tabs = $('#ba-tabs');
-    function showPair(i) {
-      baWrap.innerHTML = baHTML(S.beforeAfter[i], 'ba-range');
-      wireBA(baWrap);
-      tabs.querySelectorAll('button').forEach(function (b, j) { b.setAttribute('aria-pressed', i === j); });
-    }
-    tabs.innerHTML = S.beforeAfter.map(function (p, i) {
-      return '<button type="button" aria-pressed="false" data-i="' + i + '">' + esc(p.label) + '</button>';
-    }).join('');
-    tabs.addEventListener('click', function (e) {
-      var b = e.target.closest('button');
-      if (b) showPair(+b.getAttribute('data-i'));
-    });
-    showPair(0);
-
-    // Clients
     // Clients: click a brand to see the videos made for it
     function brandWork(c) {
       var wide = S.projects.filter(function (p) { return p.client === c && !p.vertical; });
@@ -263,8 +267,7 @@
     brandEl.addEventListener('click', function (e) {
       if (e.target.closest('.brand-close')) { showBrand(null); return; }
       var r = e.target.closest('.reel'); if (!r) return;
-      var v = brandReels[+r.getAttribute('data-i')];
-      openVideo(v.vimeo, true, esc(v.title) + ' · <a href="project.html?p=' + encodeURIComponent(v.project.slug) + '">Project details</a>');
+      openViewer(brandReels, +r.getAttribute('data-i'));
     });
 
     // Reviews
@@ -340,8 +343,7 @@
     main.innerHTML = out.join('');
     main.querySelectorAll('.versions .reel').forEach(function (b) {
       b.addEventListener('click', function () {
-        var v = p.versions[+b.getAttribute('data-i')];
-        openVideo(v.vimeo, true, esc(v.title));
+        openViewer(p.versions.map(function (v) { return { vimeo: v.vimeo, title: v.title, project: p, isVersion: true }; }), +b.getAttribute('data-i'));
       });
     });
     wirePlayers(main);
