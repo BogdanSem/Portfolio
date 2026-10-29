@@ -496,7 +496,8 @@ function serializeSite(site) {
   /* ---------------- Board ---------------- */
   var ver = Date.now();
   function imgUrl(slug, name) { return '../img/' + slug + '/' + name + '?v=' + ver; }
-  function coverUrl(slug) { return media[slug] && media[slug].cover ? media[slug].cover.url : imgUrl(slug, 'cover.jpg'); }
+  function savedCover(slug) { var p = saved && proj(slug, saved); return (p && p.cover) || 'cover.jpg'; }
+  function coverUrl(slug) { return media[slug] && media[slug].cover ? media[slug].cover.url : imgUrl(slug, savedCover(slug)); }
   function group(g) { return draft.order.filter(function (s) { return !!proj(s).vertical === (g === 'reels'); }); }
   function setGroup(g, list) { draft.order = g === 'reels' ? group('work').concat(list) : list.concat(group('reels')); }
   function render() {
@@ -661,6 +662,9 @@ function serializeSite(site) {
         var i = draft.projects.indexOf(proj(cur));
         draft.projects[i] = wp;
       }
+      // a new cover gets a new file name, so browsers show it right away
+      if (wm.cover) { if (!wm.cover.name) wm.cover.name = 'cover-' + Date.now().toString(36) + '.jpg'; wp.cover = wm.cover.name; }
+      else { var sp0 = proj(wp.slug, saved); if (sp0 && sp0.cover) wp.cover = sp0.cover; else delete wp.cover; }
       // keep frames list and media in sync
       Object.keys(wm.frames).forEach(function (name) { if (wp.frames.indexOf(name) < 0) delete wm.frames[name]; });
       if (wm.cover || Object.keys(wm.frames).length) media[wp.slug] = wm; else delete media[wp.slug];
@@ -700,7 +704,7 @@ function serializeSite(site) {
     var v = !!wp.vertical;
     $('coverBox').classList.toggle('v', v);
     $('tray').classList.toggle('v', v);
-    var src = wm.cover ? wm.cover.url : (cur ? imgUrl(cur, 'cover.jpg') : '');
+    var src = wm.cover ? wm.cover.url : (cur ? imgUrl(cur, savedCover(cur)) : '');
     $('coverBox').innerHTML = src ? '<span class="ph">Немає обкладинки. Відкрийте відео й натисніть «Зробити обкладинкою».</span><img src="' + esc(src) + '" alt="Обкладинка" onerror="this.remove()" style="position:relative">'
       : '<span class="ph">Відкрийте відео й натисніть «Зробити обкладинкою».</span>';
     $('coverReset').hidden = !wm.cover || !cur;
@@ -801,14 +805,16 @@ function serializeSite(site) {
     Object.keys(media).forEach(function (slug) {
       var p = proj(slug); if (!p) return;
       var m = media[slug];
-      if (m.cover) writes.push({ path: 'img/' + slug + '/cover.jpg', blob: m.cover.blob });
+      if (m.cover) writes.push({ path: 'img/' + slug + '/' + p.cover, blob: m.cover.blob });
       Object.keys(m.frames).forEach(function (name) {
         if (p.frames.indexOf(name) >= 0) writes.push({ path: 'img/' + slug + '/' + name, blob: m.frames[name].blob });
       });
     });
     saved.projects.forEach(function (sp) {
       var dp = proj(sp.slug);
-      if (!dp) { deletes.push('img/' + sp.slug + '/cover.jpg'); (sp.frames || []).forEach(function (f) { deletes.push('img/' + sp.slug + '/' + f); }); return; }
+      var sc = sp.cover || 'cover.jpg';
+      if (dp && (dp.cover || 'cover.jpg') !== sc) deletes.push('img/' + sp.slug + '/' + sc);
+      if (!dp) { deletes.push('img/' + sp.slug + '/' + sc); (sp.frames || []).forEach(function (f) { deletes.push('img/' + sp.slug + '/' + f); }); return; }
       (sp.frames || []).forEach(function (f) { if (dp.frames.indexOf(f) < 0) deletes.push('img/' + sp.slug + '/' + f); });
     });
     store.readSite().then(function (text) {

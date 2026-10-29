@@ -28,7 +28,7 @@
     return 'https://player.vimeo.com/video/' + encodeURIComponent(id) +
       '?autoplay=1&title=0&byline=0&portrait=0&dnt=1&color=e0b36a';
   }
-  function cover(p) { return 'img/' + p.slug + '/cover.jpg'; }
+  function cover(p) { return 'img/' + p.slug + '/' + (p.cover || 'cover.jpg'); }
   function frame(p, f) { return 'img/' + p.slug + '/' + f; }
   function bySlug(s) { return S.projects.filter(function (x) { return x.slug === s; })[0]; }
   function parentOf(p) { return p.parent ? bySlug(p.parent) : null; }
