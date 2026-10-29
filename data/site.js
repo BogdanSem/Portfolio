@@ -1,57 +1,70 @@
 /*
-  ALL SITE CONTENT LIVES IN THIS FILE.
-  To add a project: copy one block inside "projects", change the fields, add images to img/<slug>/.
-  The guide is in README.md (Ukrainian).
+  All site content lives here. The easiest way to change it is the admin panel: <site>/admin/
+  You can also edit this file by hand; keep the commas and quotes.
+
+  Project fields:
+    slug      – folder name in img/ and the page address (latin letters, digits, dashes)
+    title, subtitle, client, category, role, format, length
+    vimeo     – the digits from the Vimeo link
+    vertical  – true for 9:16 videos: they go to the Social carousel instead of the Work grid
+    parent    – slug of the main project this video belongs to (optional)
+    brief, did – texts for "The brief" and "What I did" (empty hides the block)
+    frames    – file names of stills in img/<slug>/
+    quote     – optional { text, source }
+  order: the order of projects on the site.
 */
 window.SITE = {
   name: "Bohdan Semchyshyn",
   role: "Video editor & colorist",
   available: true,
-
   contacts: {
     email: "bogdansem19@gmail.com",
     upwork: "https://www.upwork.com/freelancers/~01e246fc8834e12b64",
     linkedin: "https://www.linkedin.com/in/bohdan-semchyshyn",
     instagram: "https://www.instagram.com/semchyshyn_b"
   },
-
-  showreel: {
-    vimeo: "1219844988",
-    cover: "img/showreel/cover.jpg",
-    length: "0:30"
-  },
-
+  showreel: { vimeo: "1219844988", cover: "img/showreel/cover.jpg", length: "0:30" },
   clients: ["Carlotti Paris", "Sanctum Digital", "Little Red Door", "Scott Marshall Injury Attorneys", "Evidence Strong Show", "UON.EARTH", "Nightlife Card", "CleverBiz AI", "Innerspace"],
-
-  // Upwork reviews, quoted word for word
   reviews: [
-    { text: "Bohdan is a highly skilled colorist who elevated our footage beyond expectations, turning so-so visuals into a stunning cinematic experience. We’ll definitely work with him again and highly recommend him.", job: "Creative Video Editor for Dynamic Multi-Platform Content", year: "2024–2025", featured: true },
-    { text: "Bohdan is the best! Deff going to work with him more in the future. He is quick, gets the feedback and above all super talented!", job: "2 videos", year: "2025" },
-    { text: "Bohdan is an expert in color grading. Quick, efficient, does quality work!", job: "Color Grade, Attorney Brand Video", year: "2025" },
-    { text: "The editing job was done timely and according to my request. Great communication along the way. Highly recommend.", job: "Video editor in DaVinci Resolve", year: "2023" },
-    { text: "Very nice to work with Bohdan! He has done an amazing job with really great cooperation!", job: "Color grade, 26-minute documentary", year: "2023" },
-    { text: "Absolutely phenomenal work! Super skilled and responsive. A true professional. Thank you again.", job: "Color Grading Old Video", year: "2022" },
-    { text: "Excellent colorist and communication to return files rapidly.", job: "Video colorist with DaVinci Resolve", year: "2022" }
+    {
+      text: "Bohdan is a highly skilled colorist who elevated our footage beyond expectations, turning so-so visuals into a stunning cinematic experience. We’ll definitely work with him again and highly recommend him.",
+      job: "Creative Video Editor for Dynamic Multi-Platform Content",
+      year: "2024–2025",
+      featured: true
+    },
+    {
+      text: "Bohdan is the best! Deff going to work with him more in the future. He is quick, gets the feedback and above all super talented!",
+      job: "2 videos",
+      year: "2025"
+    },
+    {
+      text: "Bohdan is an expert in color grading. Quick, efficient, does quality work!",
+      job: "Color Grade, Attorney Brand Video",
+      year: "2025"
+    },
+    {
+      text: "The editing job was done timely and according to my request. Great communication along the way. Highly recommend.",
+      job: "Video editor in DaVinci Resolve",
+      year: "2023"
+    },
+    {
+      text: "Very nice to work with Bohdan! He has done an amazing job with really great cooperation!",
+      job: "Color grade, 26-minute documentary",
+      year: "2023"
+    },
+    {
+      text: "Absolutely phenomenal work! Super skilled and responsive. A true professional. Thank you again.",
+      job: "Color Grading Old Video",
+      year: "2022"
+    },
+    {
+      text: "Excellent colorist and communication to return files rapidly.",
+      job: "Video colorist with DaVinci Resolve",
+      year: "2022"
+    }
   ],
-
   categories: ["Commercials", "Brand Stories", "Documentary", "YouTube & Podcasts", "Reels"],
-
-  // Order of projects on the site. Change it in the admin panel (admin/) or by hand.
-  // Projects missing from this list go to the end.
-  order: ["carlotti-paris", "scott-marshall", "vocations", "evidence-strong", "youtube-leo", "youtube-business-fr", "innerspace", "lrd-new-york", "uon-earth", "sanctum-promo", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "lrd-interviews"],
-
-  /*
-    Project fields:
-      slug        – folder name in img/ and the page address (project.html?p=slug)
-      title, subtitle, client, category (one of the categories above)
-      role, format, length
-      vimeo       – Vimeo video number (the digits at the end of the link)
-      vertical    – true if the main video is 9:16
-      brief, did  – the two text blocks; leave "" to hide a block
-      versions    – more videos: { vimeo, title, cover } (cover is optional, Vimeo's preview is used if empty)
-      frames      – still frames from img/<slug>/
-      quote       – a client review for this project (optional)
-  */
+  order: ["carlotti-paris", "scott-marshall", "vocations", "evidence-strong", "evidence-strong-reels", "youtube-leo", "youtube-leo-short", "youtube-business-fr", "innerspace", "lrd-new-york", "lrd-washington", "lrd-mexico-city", "uon-earth", "sanctum-promo", "sanctum-app-ad", "sanctum-launch", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "jack-the-grower-2", "lrd-interviews", "lrd-matt-wiley"],
   projects: [
     {
       slug: "carlotti-paris",
@@ -82,7 +95,10 @@ window.SITE = {
       brief: "A brand film for a Florida injury law firm, shot in difficult lighting conditions.",
       did: "I graded the whole film into one consistent look and fixed the problem areas shot by shot.",
       frames: ["fmvtkihbj.jpg", "fmvtkijby.jpg", "fmvtkin46.jpg", "fmvtkiq6e.jpg", "fmvtkj9hf.jpg", "fmvtkj4tu.jpg"],
-      quote: { text: "Bohdan is an expert in color grading. Quick, efficient, does quality work!", source: "Upwork review, 2025" }
+      quote: {
+        text: "Bohdan is an expert in color grading. Quick, efficient, does quality work!",
+        source: "Upwork review, 2025"
+      }
     },
     {
       slug: "innerspace",
@@ -112,11 +128,39 @@ window.SITE = {
       vertical: true,
       brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
       did: "Editing, precise color, smooth transitions and graphics.",
-      versions: [
-        { vimeo: "865903832", title: "Washington, D.C.", cover: "img/lrd-washington/cover.jpg" },
-        { vimeo: "861541218", title: "Mexico City", cover: "img/lrd-mexico-city/cover.jpg" }
-      ],
       frames: ["fmvtkp0wx.jpg", "fmvtkpa3n.jpg", "fmvtkpcfs.jpg", "fmvtkpeul.jpg", "fmvtkphao.jpg", "fmvtkpjtk.jpg", "fmvtkppty.jpg", "fmvtkptnv.jpg"]
+    },
+    {
+      slug: "lrd-washington",
+      title: "Washington, D.C.",
+      subtitle: "",
+      client: "Little Red Door",
+      category: "Brand Stories",
+      role: "Edit, color, graphics",
+      format: "9:16",
+      length: "",
+      vimeo: "865903832",
+      vertical: true,
+      parent: "lrd-new-york",
+      brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
+      did: "Editing, precise color, smooth transitions and graphics.",
+      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"]
+    },
+    {
+      slug: "lrd-mexico-city",
+      title: "Mexico City",
+      subtitle: "",
+      client: "Little Red Door",
+      category: "Brand Stories",
+      role: "Edit, color, graphics",
+      format: "9:16",
+      length: "",
+      vimeo: "861541218",
+      vertical: true,
+      parent: "lrd-new-york",
+      brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
+      did: "Editing, precise color, smooth transitions and graphics.",
+      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"]
     },
     {
       slug: "vocations",
@@ -161,11 +205,39 @@ window.SITE = {
       vertical: true,
       brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
       did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
-      versions: [
-        { vimeo: "1240734573", title: "App ad, 5 to 45 minutes", cover: "img/sanctum-app-ad/cover.jpg" },
-        { vimeo: "1164921024", title: "Launch and waitlist ad", cover: "img/sanctum-launch/cover.jpg" }
-      ],
       frames: ["fmvtkrqys.jpg", "fmvtkrt9k.jpg", "fmvtkrxxf.jpg", "fmvtks2yv.jpg"]
+    },
+    {
+      slug: "sanctum-app-ad",
+      title: "App ad, 5 to 45 minutes",
+      subtitle: "",
+      client: "Sanctum Digital",
+      category: "Commercials",
+      role: "Video editing",
+      format: "9:16",
+      length: "",
+      vimeo: "1240734573",
+      vertical: true,
+      parent: "sanctum-promo",
+      brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
+      did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
+      frames: []
+    },
+    {
+      slug: "sanctum-launch",
+      title: "Launch and waitlist ad",
+      subtitle: "",
+      client: "Sanctum Digital",
+      category: "Commercials",
+      role: "Video editing",
+      format: "9:16",
+      length: "",
+      vimeo: "1164921024",
+      vertical: true,
+      parent: "sanctum-promo",
+      brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
+      did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
+      frames: []
     },
     {
       slug: "evidence-strong",
@@ -180,10 +252,23 @@ window.SITE = {
       vertical: false,
       brief: "A podcast about evidence-based training. Every interview becomes a full YouTube episode and a set of shorts for Instagram.",
       did: "I edit and switch cameras on the interview, grade it, and cut shorts with captions and on-brand design.",
-      versions: [
-        { vimeo: "920089469", title: "Instagram shorts", cover: "img/evidence-strong-reels/cover.jpg" }
-      ],
       frames: ["01.jpg", "02.jpg", "fmvtkkvll.jpg"]
+    },
+    {
+      slug: "evidence-strong-reels",
+      title: "Instagram shorts",
+      subtitle: "",
+      client: "Evidence Strong Show",
+      category: "YouTube & Podcasts",
+      role: "Edit, color, subtitles, design",
+      format: "9:16",
+      length: "",
+      vimeo: "920089469",
+      vertical: true,
+      parent: "evidence-strong",
+      brief: "A podcast about evidence-based training. Every interview becomes a full YouTube episode and a set of shorts for Instagram.",
+      did: "I edit and switch cameras on the interview, grade it, and cut shorts with captions and on-brand design.",
+      frames: []
     },
     {
       slug: "nightlife-card",
@@ -228,10 +313,23 @@ window.SITE = {
       vertical: true,
       brief: "An ad for an online shop selling dahlia bulbs, with a promo code for the first order.",
       did: "A fast-paced edit with kinetic typography over live footage of the flowers.",
-      versions: [
-        { vimeo: "1094404206", title: "Second ad", cover: "" }
-      ],
       frames: ["fmvtkv9i5.jpg", "fmvtkvlj9.jpg", "fmvtkvgek.jpg", "fmvtkvop5.jpg", "fmvtkvqby.jpg", "fmvtkvtt2.jpg", "fmvtkvwer.jpg"]
+    },
+    {
+      slug: "jack-the-grower-2",
+      title: "Second ad",
+      subtitle: "",
+      client: "Jack the Grower",
+      category: "Commercials",
+      role: "Edit, motion text, color",
+      format: "9:16",
+      length: "",
+      vimeo: "1094404206",
+      vertical: true,
+      parent: "jack-the-grower",
+      brief: "An ad for an online shop selling dahlia bulbs, with a promo code for the first order.",
+      did: "A fast-paced edit with kinetic typography over live footage of the flowers.",
+      frames: []
     },
     {
       slug: "youtube-leo",
@@ -246,10 +344,23 @@ window.SITE = {
       vertical: false,
       brief: "A studio talking-head video with icons and graphic inserts, plus short vertical cuts.",
       did: "",
-      versions: [
-        { vimeo: "920082905", title: "Short-form version", cover: "" }
-      ],
       frames: ["fmvtklnis.jpg", "fmvtklq6b.jpg", "fmvtkluaa.jpg", "fmvtklwu4.jpg", "fmvtklynr.jpg", "fmvtkm4df.jpg"]
+    },
+    {
+      slug: "youtube-leo-short",
+      title: "Short-form version",
+      subtitle: "",
+      client: "Leo",
+      category: "YouTube & Podcasts",
+      role: "Edit",
+      format: "9:16",
+      length: "",
+      vimeo: "920082905",
+      vertical: true,
+      parent: "youtube-leo",
+      brief: "A studio talking-head video with icons and graphic inserts, plus short vertical cuts.",
+      did: "",
+      frames: []
     },
     {
       slug: "lrd-interviews",
@@ -264,10 +375,23 @@ window.SITE = {
       vertical: true,
       brief: "Interview reels with bar owners in a four-question format: Nicolas Torres of True Laurel and Matt Wiley of RE.",
       did: "",
-      versions: [
-        { vimeo: "861542333", title: "Matt Wiley, RE.", cover: "" }
-      ],
       frames: ["fmvtkwa7o.jpg", "fmvtkwod3.jpg", "fmvtkwix9.jpg"]
+    },
+    {
+      slug: "lrd-matt-wiley",
+      title: "Matt Wiley, RE.",
+      subtitle: "",
+      client: "Little Red Door",
+      category: "Reels",
+      role: "Edit, color",
+      format: "9:16",
+      length: "",
+      vimeo: "861542333",
+      vertical: true,
+      parent: "lrd-interviews",
+      brief: "Interview reels with bar owners in a four-question format: Nicolas Torres of True Laurel and Matt Wiley of RE.",
+      did: "",
+      frames: []
     },
     {
       slug: "youtube-business-fr",

@@ -30,6 +30,18 @@
   }
   function cover(p) { return 'img/' + p.slug + '/cover.jpg'; }
   function frame(p, f) { return 'img/' + p.slug + '/' + f; }
+  function bySlug(s) { return S.projects.filter(function (x) { return x.slug === s; })[0]; }
+  function parentOf(p) { return p.parent ? bySlug(p.parent) : null; }
+  // Cover image; if the file is missing, the Vimeo preview is used instead
+  function coverImg(p, alt, lazy) {
+    return '<img src="' + esc(cover(p)) + '" alt="' + esc(alt == null ? p.title : alt) + '" data-fallback-vimeo="' + esc(p.vimeo) + '"' + (lazy ? ' loading="lazy"' : '') + '>';
+  }
+  document.addEventListener('error', function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG' || !img.getAttribute('data-fallback-vimeo') || img.getAttribute('data-fb')) return;
+    img.setAttribute('data-fb', '1');
+    vimeoThumb(img.getAttribute('data-fallback-vimeo')).then(function (u) { if (u) img.src = u; });
+  }, true);
 
   // Vimeo preview for videos without our own cover
   var thumbCache = {};
@@ -51,7 +63,7 @@
   // Inline player: cover + play button, replaced by the Vimeo iframe on click
   function playerHTML(id, img, alt, vertical, tag) {
     return '<div class="player' + (vertical ? ' is-vertical' : '') + '" data-vimeo="' + esc(id) + '">' +
-      (img ? '<img src="' + esc(img) + '" alt="' + esc(alt) + '">' : '<img alt="' + esc(alt) + '" data-vimeo-thumb="' + esc(id) + '">') +
+      (img ? '<img src="' + esc(img) + '" alt="' + esc(alt) + '" data-fallback-vimeo="' + esc(id) + '">' : '<img alt="' + esc(alt) + '" data-vimeo-thumb="' + esc(id) + '">') +
       '<button type="button" class="play" aria-label="Play ' + esc(alt) + '"><span>' + PLAY + '</span></button>' +
       (tag ? '<div class="tag">' + tag + '</div>' : '') +
       '</div>';
@@ -81,7 +93,7 @@
       .filter(function (r) { return r[1]; });
     return '<p class="v-eyebrow">' + esc(p.category.toUpperCase()) + '</p>' +
       '<h2 class="v-title">' + esc(v.title) + '</h2>' +
-      (v.isVersion ? '<p class="v-sub">From “' + esc(p.title) + '”</p>' : (p.subtitle ? '<p class="v-sub">' + esc(p.subtitle) + '</p>' : '')) +
+      (parentOf(p) ? '<p class="v-sub">From “' + esc(parentOf(p).title) + '”</p>' : (p.subtitle ? '<p class="v-sub">' + esc(p.subtitle) + '</p>' : '')) +
       (rows.length ? '<dl class="v-rows">' + rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>' : '') +
       (p.brief ? '<h3>The brief</h3><p>' + esc(p.brief) + '</p>' : '') +
       (p.did ? '<h3>What I did</h3><p>' + esc(p.did) + '</p>' : '') +
@@ -147,14 +159,10 @@
 
   // All vertical videos for the carousel, built from the projects
   function verticalVideos() {
-    var list = [];
-    S.projects.forEach(function (p) {
-      if (p.vertical) list.push({ vimeo: p.vimeo, title: p.title, client: p.client, img: cover(p), project: p });
-      (p.versions || []).forEach(function (v) {
-        list.push({ vimeo: v.vimeo, title: v.title, client: p.title, img: v.cover, project: p, isVersion: true });
-      });
+    return S.projects.filter(function (p) { return p.vertical; }).map(function (p) {
+      var par = parentOf(p);
+      return { vimeo: p.vimeo, title: p.title, client: par ? par.title : p.client, project: p };
     });
-    return list;
   }
 
   function projectCard(p) {
@@ -162,7 +170,7 @@
     return '<a class="card" href="project.html?p=' + encodeURIComponent(p.slug) + '">' +
       '<div class="thumb' + (p.vertical ? ' is-vertical' : '') + '">' +
       (p.vertical ? '<img class="blur" src="' + esc(img) + '" alt="" loading="lazy">' : '') +
-      '<img class="main" src="' + esc(img) + '" alt="' + esc(p.title) + '" loading="lazy">' +
+      '<img class="main" src="' + esc(img) + '" alt="' + esc(p.title) + '" loading="lazy" data-fallback-vimeo="' + esc(p.vimeo) + '">' +
       '<span class="tag">' + esc(p.category.toUpperCase()) + '</span></div>' +
       '<div class="card-meta"><div><div class="card-title">' + esc(p.title) + '</div>' +
       '<div class="card-client">' + esc(p.client) + '</div></div>' +
@@ -206,7 +214,7 @@
     rail.innerHTML = vids.map(function (v, i) {
       return '<button type="button" class="reel" role="listitem" data-i="' + i + '">' +
         '<div class="frame">' +
-        (v.img ? '<img src="' + esc(v.img) + '" alt="' + esc(v.title) + '" loading="lazy">' : '<img src="' + esc(cover(v.project)) + '" alt="' + esc(v.title) + '" data-vimeo-thumb="' + esc(v.vimeo) + '">') +
+        coverImg(v.project, v.title, true) +
         '<span class="mini-play">' + PLAY_SM + '</span></div>' +
         '<div class="reel-title">' + esc(v.title) + '</div><div class="reel-client">' + esc(v.client) + '</div></button>';
     }).join('');
@@ -252,7 +260,7 @@
         (w.wide.length ? '<div class="grid brand-grid">' + w.wide.map(projectCard).join('') + '</div>' : '') +
         (w.reels.length ? '<div class="brand-reels">' + w.reels.map(function (v, i) {
           return '<button type="button" class="reel" data-i="' + i + '"><div class="frame">' +
-            (v.img ? '<img src="' + esc(v.img) + '" alt="' + esc(v.title) + '" loading="lazy">' : '<img src="' + esc(cover(v.project)) + '" alt="' + esc(v.title) + '" data-vimeo-thumb="' + esc(v.vimeo) + '">') +
+            coverImg(v.project, v.title, true) +
             '<span class="mini-play">' + PLAY_SM + '</span></div>' +
             '<div class="reel-title">' + esc(v.title) + '</div></button>';
         }).join('') + '</div>' : '');
@@ -291,7 +299,9 @@
     var idx = S.projects.findIndex(function (p) { return p.slug === slug; });
     if (idx < 0) idx = 0;
     var p = S.projects[idx];
-    var nextP = S.projects[(idx + 1) % S.projects.length];
+    var tops = S.projects.filter(function (x) { return !x.parent; });
+    var ti = tops.indexOf(parentOf(p) || p);
+    var nextP = tops[(ti + 1) % tops.length];
     document.title = p.title + ' — ' + S.name;
 
     var out = [];
@@ -312,14 +322,20 @@
         (p.did ? '<div><h2>What I did</h2><p>' + esc(p.did) + '</p></div>' : '') + '</section>');
     }
 
-    if (p.versions && p.versions.length) {
+    // Other videos from the same project (the main one and its parts)
+    var root = p.parent || p.slug;
+    var family = S.projects.filter(function (x) { return x !== p && (x.slug === root || x.parent === root); });
+    var famReels = family.filter(function (x) { return x.vertical; });
+    var famWide = family.filter(function (x) { return !x.vertical; });
+    if (family.length) {
       out.push('<section class="wrap section" aria-labelledby="v-title"><p class="eyebrow">MORE VIDEOS</p>' +
-        '<h2 id="v-title" class="h2" style="margin-bottom:28px">' + (p.versions.length > 1 ? 'More from this project' : 'Another version') + '</h2>' +
-        '<div class="versions" role="list">' + p.versions.map(function (v, i) {
+        '<h2 id="v-title" class="h2" style="margin-bottom:28px">' + (family.length > 1 ? 'More from this project' : (p.parent ? 'From the same project' : 'Another version')) + '</h2>' +
+        (famWide.length ? '<div class="grid" style="margin-bottom:32px">' + famWide.map(projectCard).join('') + '</div>' : '') +
+        (famReels.length ? '<div class="versions" role="list">' + famReels.map(function (x, i) {
           return '<button type="button" class="reel" role="listitem" data-i="' + i + '" style="flex:none">' +
-            '<div class="frame">' + (v.cover ? '<img src="' + esc(v.cover) + '" alt="' + esc(v.title) + '" loading="lazy">' : '<img src="' + esc(cover(p)) + '" alt="' + esc(v.title) + '" data-vimeo-thumb="' + esc(v.vimeo) + '">') +
-            '<span class="mini-play">' + PLAY_SM + '</span></div><div class="reel-title">' + esc(v.title) + '</div></button>';
-        }).join('') + '</div></section>');
+            '<div class="frame">' + coverImg(x, x.title, true) +
+            '<span class="mini-play">' + PLAY_SM + '</span></div><div class="reel-title">' + esc(x.title) + '</div></button>';
+        }).join('') + '</div>' : '') + '</section>');
     }
 
     if (p.frames && p.frames.length) {
@@ -343,7 +359,7 @@
     main.innerHTML = out.join('');
     main.querySelectorAll('.versions .reel').forEach(function (b) {
       b.addEventListener('click', function () {
-        openViewer(p.versions.map(function (v) { return { vimeo: v.vimeo, title: v.title, project: p, isVersion: true }; }), +b.getAttribute('data-i'));
+        openViewer(famReels.map(function (x) { return { vimeo: x.vimeo, title: x.title, project: x }; }), +b.getAttribute('data-i'));
       });
     });
     wirePlayers(main);
