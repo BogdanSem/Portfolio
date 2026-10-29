@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<style id="antiFrame">html { display: none !important; }</style>
+<script>
+  // The admin panel must never run inside someone else's page
+  if (window.top === window.self) document.getElementById('antiFrame').remove();
+  else window.top.location = window.self.location.href;
+</script>
 <title>Адмінка сайту</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -157,6 +163,8 @@ textarea { min-height: 110px; padding: 10px 12px; border-radius: 8px; border: 1p
         <input type="password" id="token" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
       </label>
     </div>
+    <label class="check"><input type="checkbox" id="remember">
+      <span>Запамʼятати ключ на цьому пристрої. Без галочки ключ забудеться, щойно ви закриєте вкладку. Ставте її лише на своєму компʼютері.</span></label>
     <div class="row">
       <button class="btn primary" id="connect">Підключити</button>
       <button class="btn" id="localMode">Працювати з папкою на компʼютері</button>
@@ -346,6 +354,11 @@ function serializeSite(site) {
   }
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+  function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  function ssSet(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch (e) {} }
+  // The key lives in sessionStorage (forgotten when the tab closes) unless the owner ticks "remember"
+  function getToken() { return ssGet('pa_token') || lsGet('pa_token'); }
+  function saveToken(t, remember) { ssSet('pa_token', remember ? null : t); lsSet('pa_token', remember ? t : null); }
 
   /* ---------------- Storage backends ---------------- */
   function GitHub(repo, token) {
@@ -904,7 +917,7 @@ function serializeSite(site) {
       $('logout').addEventListener('click', function (e) {
         e.preventDefault();
         if (changeCount() && !window.confirm('Є неопубліковані зміни. Все одно відключити?')) return;
-        lsSet('pa_token', null); location.reload();
+        saveToken(null, false); lsSet('pa_token', null); location.reload();
       });
       return loadSite();
     });
@@ -921,7 +934,7 @@ function serializeSite(site) {
     if (!token) { $('setupStatus').textContent = 'Вставте ключ доступу.'; $('setupStatus').className = 'status err'; return; }
     $('setupStatus').textContent = 'Перевіряю…'; $('setupStatus').className = 'status';
     start(GitHub(repo, token)).then(function () {
-      lsSet('pa_repo', repo); lsSet('pa_token', token);
+      lsSet('pa_repo', repo); saveToken(token, $('remember').checked);
     }).catch(function (e) { showSetup('Не вдалося підключитись: ' + e.message + '.'); });
   });
   $('localMode').addEventListener('click', function () {
@@ -934,7 +947,7 @@ function serializeSite(site) {
     });
   });
 
-  var t = lsGet('pa_token'), r = lsGet('pa_repo');
+  var t = getToken(), r = lsGet('pa_repo');
   if (t && r) {
     $('conn').textContent = 'Підключаюсь…';
     start(GitHub(r, t)).catch(function (e) { $('conn').textContent = ''; showSetup('Не вдалося підключитись: ' + e.message + '.'); });
