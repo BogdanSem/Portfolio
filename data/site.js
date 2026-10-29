@@ -64,7 +64,7 @@ window.SITE = {
     }
   ],
   categories: ["Commercials", "Brand Stories", "Documentary", "YouTube & Podcasts", "Reels"],
-  order: ["carlotti-paris", "scott-marshall", "vocations", "evidence-strong", "youtube-leo", "youtube-business-fr", "evidence-strong-reels", "innerspace", "youtube-leo-short", "lrd-new-york", "lrd-washington", "lrd-mexico-city", "uon-earth", "sanctum-promo", "sanctum-app-ad", "sanctum-launch", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "jack-the-grower-2", "lrd-interviews", "lrd-matt-wiley"],
+  order: ["carlotti-paris", "scott-marshall", "vocations", "evidence-strong", "youtube-leo", "youtube-business-fr", "evidence-strong-reels", "innerspace", "cleverbiz-the-build", "sanctum-app-ad", "jack-the-grower", "lrd-new-york", "lrd-washington", "lrd-mexico-city", "uon-earth", "sanctum-promo", "sanctum-launch", "nightlife-card", "lrd-interviews"],
   projects: [
     {
       slug: "carlotti-paris",
@@ -117,7 +117,7 @@ window.SITE = {
     },
     {
       slug: "lrd-new-york",
-      title: "Little Red Door brand trips",
+      title: "Little Red Door",
       subtitle: "New York, Washington D.C., Mexico City",
       client: "Little Red Door",
       category: "Brand Stories",
@@ -128,12 +128,13 @@ window.SITE = {
       vertical: true,
       brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
       did: "Editing, precise color, smooth transitions and graphics.",
-      frames: ["fmvtkp0wx.jpg", "fmvtkpa3n.jpg", "fmvtkpcfs.jpg", "fmvtkpeul.jpg", "fmvtkphao.jpg", "fmvtkpjtk.jpg", "fmvtkppty.jpg", "fmvtkptnv.jpg"]
+      frames: ["fmvtkp0wx.jpg", "fmvtkpa3n.jpg", "fmvtkpcfs.jpg", "fmvtkpeul.jpg", "fmvtkphao.jpg", "fmvtkpjtk.jpg", "fmvtkppty.jpg", "fmvtkptnv.jpg"],
+      parent: "lrd-interviews"
     },
     {
       slug: "lrd-washington",
-      title: "Washington, D.C.",
-      subtitle: "",
+      title: "Little Red Door",
+      subtitle: "Washington, D.C.",
       client: "Little Red Door",
       category: "Brand Stories",
       role: "Edit, color, graphics",
@@ -141,15 +142,15 @@ window.SITE = {
       length: "",
       vimeo: "865903832",
       vertical: true,
-      parent: "lrd-new-york",
+      parent: "lrd-interviews",
       brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
       did: "Editing, precise color, smooth transitions and graphics.",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"]
+      frames: ["fmvtm3qjd0.jpg", "fmvtm3sni1.jpg", "fmvtm3y9m2.jpg", "fmvtm40973.jpg", "fmvtm42ff4.jpg", "fmvtm44ra5.jpg", "fmvtm46ck6.jpg", "fmvtm4bwh7.jpg"]
     },
     {
       slug: "lrd-mexico-city",
-      title: "Mexico City",
-      subtitle: "",
+      title: "Little Red Door",
+      subtitle: "Mexico City",
       client: "Little Red Door",
       category: "Brand Stories",
       role: "Edit, color, graphics",
@@ -157,10 +158,10 @@ window.SITE = {
       length: "",
       vimeo: "861541218",
       vertical: true,
-      parent: "lrd-new-york",
+      parent: "lrd-interviews",
       brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
       did: "Editing, precise color, smooth transitions and graphics.",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"]
+      frames: ["fmvtmbtk58.jpg", "fmvtmbwt99.jpg", "fmvtmby330.jpg", "fmvtmc08s1.jpg", "fmvtmc6kq3.jpg", "fmvtmc8rv4.jpg", "fmvtmce355.jpg", "fmvtmcgvl6.jpg"]
     },
     {
       slug: "vocations",
@@ -209,7 +210,7 @@ window.SITE = {
     },
     {
       slug: "sanctum-app-ad",
-      title: "App ad, 5 to 45 minutes",
+      title: "Sanctum Digital App AD",
       subtitle: "",
       client: "Sanctum Digital",
       category: "Commercials",
@@ -221,7 +222,7 @@ window.SITE = {
       parent: "sanctum-promo",
       brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
       did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
-      frames: []
+      frames: ["fmvtmda1q7.jpg", "fmvtmdbq28.jpg", "fmvtmddes9.jpg"]
     },
     {
       slug: "sanctum-launch",
@@ -237,7 +238,7 @@ window.SITE = {
       parent: "sanctum-promo",
       brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
       did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
-      frames: []
+      frames: ["fmvtmimiw0.jpg", "fmvtmipb01.jpg", "fmvtmir5d2.jpg", "fmvtmisuw3.jpg", "fmvtmiv3q4.jpg", "fmvtmixbo5.jpg"]
     },
     {
       slug: "evidence-strong",
@@ -256,7 +257,7 @@ window.SITE = {
     },
     {
       slug: "evidence-strong-reels",
-      title: "Instagram shorts",
+      title: "Evidence Strong Show Short",
       subtitle: "",
       client: "Evidence Strong Show",
       category: "YouTube & Podcasts",
@@ -316,22 +317,6 @@ window.SITE = {
       frames: ["fmvtkv9i5.jpg", "fmvtkvlj9.jpg", "fmvtkvgek.jpg", "fmvtkvop5.jpg", "fmvtkvqby.jpg", "fmvtkvtt2.jpg", "fmvtkvwer.jpg"]
     },
     {
-      slug: "jack-the-grower-2",
-      title: "Second ad",
-      subtitle: "",
-      client: "Jack the Grower",
-      category: "Commercials",
-      role: "Edit, motion text, color",
-      format: "9:16",
-      length: "",
-      vimeo: "1094404206",
-      vertical: true,
-      parent: "jack-the-grower",
-      brief: "An ad for an online shop selling dahlia bulbs, with a promo code for the first order.",
-      did: "A fast-paced edit with kinetic typography over live footage of the flowers.",
-      frames: []
-    },
-    {
       slug: "youtube-leo",
       title: "YouTube video for Leo",
       subtitle: "Talking-head video and shorts",
@@ -347,22 +332,6 @@ window.SITE = {
       frames: ["fmvtklnis.jpg", "fmvtklq6b.jpg", "fmvtkluaa.jpg", "fmvtklwu4.jpg", "fmvtklynr.jpg", "fmvtkm4df.jpg"]
     },
     {
-      slug: "youtube-leo-short",
-      title: "Short-form version",
-      subtitle: "",
-      client: "Leo",
-      category: "YouTube & Podcasts",
-      role: "Edit",
-      format: "9:16",
-      length: "",
-      vimeo: "920082905",
-      vertical: true,
-      parent: "youtube-leo",
-      brief: "A studio talking-head video with icons and graphic inserts, plus short vertical cuts.",
-      did: "",
-      frames: []
-    },
-    {
       slug: "lrd-interviews",
       title: "Little Red Door interviews",
       subtitle: "Four questions with bar owners",
@@ -376,22 +345,6 @@ window.SITE = {
       brief: "Interview reels with bar owners in a four-question format: Nicolas Torres of True Laurel and Matt Wiley of RE.",
       did: "",
       frames: ["fmvtkwa7o.jpg", "fmvtkwod3.jpg", "fmvtkwix9.jpg"]
-    },
-    {
-      slug: "lrd-matt-wiley",
-      title: "Matt Wiley, RE.",
-      subtitle: "",
-      client: "Little Red Door",
-      category: "Reels",
-      role: "Edit, color",
-      format: "9:16",
-      length: "",
-      vimeo: "861542333",
-      vertical: true,
-      parent: "lrd-interviews",
-      brief: "Interview reels with bar owners in a four-question format: Nicolas Torres of True Laurel and Matt Wiley of RE.",
-      did: "",
-      frames: []
     },
     {
       slug: "youtube-business-fr",
