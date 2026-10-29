@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrange Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0E0E0D; --panel: #1A1A19; --line: #262624; --line-strong: #3A3A37;
+  --ink: #EDEBE6; --ink-2: #B8B5AE; --ink-3: #8C8A85; --accent: #E0B36A; --danger: #E5786A;
+  --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+h1 { margin: 0; font-size: 28px; font-weight: 500; letter-spacing: -0.02em; }
+.hint { color: var(--ink-3); font-size: 14px; line-height: 1.5; margin: 6px 0 0; max-width: 60ch; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; }
+.btn:hover { border-color: var(--ink-2); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 500; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px 16px; }
+.card { position: relative; cursor: grab; user-select: none; border-radius: 6px; padding: 6px; border: 1px solid transparent; transition: border-color 0.15s, opacity 0.15s; }
+.card:hover { border-color: var(--line-strong); }
+.card.dragging { opacity: 0.35; }
+.card.target { border-color: var(--accent); }
+.thumb { position: relative; aspect-ratio: 16 / 9; border-radius: 4px; overflow: hidden; background: var(--panel); }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.thumb.v img.blur { filter: blur(24px) brightness(0.55); transform: scale(1.3); }
+.thumb.v img.main { left: 50%; width: auto; aspect-ratio: 9 / 16; transform: translateX(-50%); }
+.num { position: absolute; left: 10px; top: 10px; font-family: var(--mono); font-size: 12px; background: rgba(14,14,13,0.75); padding: 3px 8px; border-radius: 2px; }
+.meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; }
+.title { font-size: 15px; font-weight: 500; }
+.cat { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.moves { display: flex; gap: 6px; flex: none; }
+.moves button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.moves button:disabled { opacity: 0.3; cursor: default; }
+.status { font-size: 14px; color: var(--ink-2); min-height: 20px; }
+.status.ok { color: #8FD19E; } .status.err { color: var(--danger); }
+pre { margin: 0; padding: 12px; background: var(--panel); border-radius: 6px; font-family: var(--mono); font-size: 12px; white-space: pre-wrap; word-break: break-all; color: var(--ink-2); }
+.sec { margin: 8px 0 -8px; font-size: 13px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.grid[data-g="reels"] { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.grid[data-g="reels"] .thumb { aspect-ratio: 9 / 16; }
+.grid[data-g="reels"] .meta { flex-direction: column; align-items: flex-start; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: grid; gap: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Порядок робіт</h1>
+      <p class="hint">Перетягуйте картки мишкою або переставляйте стрілками. Горизонтальні роботи йдуть у сітку Work, вертикальні (шортси) — у стрічку Social.</p>
+    </div>
+    <div class="row">
+      <button class="btn" id="reset" disabled>Скасувати зміни</button>
+      <button class="btn primary" id="save">Зберегти в папку сайту</button>
+    </div>
+  </header>
+
+  <h2 class="sec">Work — сітка робіт</h2>
+  <div class="grid" id="grid-work" data-g="work" role="list"></div>
+  <h2 class="sec">Social — стрічка шортсів</h2>
+  <div class="grid" id="grid-reels" data-g="reels" role="list"></div>
+
+  <section class="box">
+    <div class="status" id="status" role="status"></div>
+    <p class="hint" id="saveHint" style="margin:0">«Зберегти в папку сайту» працює в Chrome та Edge: оберіть папку сайту (ту, де лежить index.html), і інструмент сам оновить порядок у data/site.js. В інших браузерах скопіюйте рядок нижче й замініть ним рядок <code>order: [...]</code> у data/site.js.</p>
+    <pre id="line"></pre>
+    <div class="row"><button class="btn" id="copy">Скопіювати рядок</button></div>
+  </section>
+</div>
+
+<script src="../data/site.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var S = window.SITE || { projects: [] };
+  var bySlug = {};
+  S.projects.forEach(function (p) { bySlug[p.slug] = p; });
+
+  function initialOrder() {
+    var list = (S.order || []).filter(function (s) { return bySlug[s]; });
+    S.projects.forEach(function (p) { if (list.indexOf(p.slug) < 0) list.push(p.slug); });
+    return list;
+  }
+  var start = initialOrder();
+  var order = start.slice();
+  function group(g) { return order.filter(function (s) { return !!bySlug[s].vertical === (g === 'reels'); }); }
+  function setGroup(g, list) { order = g === 'reels' ? group('work').concat(list) : list.concat(group('reels')); }
+  var siteDir = null;
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function cardHTML(slug, i, n) {
+    var p = bySlug[slug], img = '../img/' + slug + '/cover.jpg', v = !!p.vertical;
+    return '<div class="card" role="listitem" draggable="true" data-i="' + i + '">' +
+      '<div class="thumb">' +
+      '<img class="main" src="' + img + '" alt="">' +
+      '<span class="num">' + (i < 9 ? '0' : '') + (i + 1) + '</span></div>' +
+      '<div class="meta"><div><div class="title">' + esc(p.title) + '</div><div class="cat">' + esc(p.category) + '</div></div>' +
+      '<div class="moves"><button type="button" data-move="-1" aria-label="Перемістити «' + esc(p.title) + '» раніше"' + (i === 0 ? ' disabled' : '') + '>‹</button>' +
+      '<button type="button" data-move="1" aria-label="Перемістити «' + esc(p.title) + '» пізніше"' + (i === n - 1 ? ' disabled' : '') + '>›</button></div></div></div>';
+  }
+  function render() {
+    ['work', 'reels'].forEach(function (g) {
+      var list = group(g);
+      $('grid-' + g).innerHTML = list.map(function (s, i) { return cardHTML(s, i, list.length); }).join('');
+    });
+    $('line').textContent = 'order: [' + order.map(function (s) { return '"' + s + '"'; }).join(', ') + '],';
+    $('reset').disabled = order.join() === start.join();
+  }
+
+  var from = null, fromG = null;
+  ['work', 'reels'].forEach(function (g) {
+    var el = $('grid-' + g);
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-move]'); if (!b) return;
+      var list = group(g), i = +b.closest('.card').dataset.i, j = i + +b.dataset.move;
+      if (j < 0 || j >= list.length) return;
+      list.splice(j, 0, list.splice(i, 1)[0]); setGroup(g, list); render();
+      var again = el.querySelector('.card[data-i="' + j + '"] button[data-move="' + b.dataset.move + '"]');
+      if (again && !again.disabled) again.focus();
+      status('');
+    });
+    el.addEventListener('dragstart', function (e) {
+      var c = e.target.closest('.card'); if (!c) return;
+      from = +c.dataset.i; fromG = g; c.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', String(from)); } catch (x) {}
+    });
+    el.addEventListener('dragover', function (e) {
+      var c = e.target.closest('.card'); if (!c || from === null || fromG !== g) return;
+      e.preventDefault();
+      document.querySelectorAll('.card.target').forEach(function (x) { if (x !== c) x.classList.remove('target'); });
+      c.classList.add('target');
+    });
+    el.addEventListener('drop', function (e) {
+      var c = e.target.closest('.card'); if (!c || from === null || fromG !== g) return;
+      e.preventDefault();
+      var list = group(g); list.splice(+c.dataset.i, 0, list.splice(from, 1)[0]);
+      setGroup(g, list); from = null; render(); status('');
+    });
+    el.addEventListener('dragend', function () {
+      from = null;
+      document.querySelectorAll('.card').forEach(function (x) { x.classList.remove('dragging', 'target'); });
+    });
+  });
+
+  $('reset').addEventListener('click', function () { order = start.slice(); render(); status(''); });
+
+  $('copy').addEventListener('click', function () {
+    var t = $('line').textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject())
+      .then(function () { status('Рядок скопійовано. Замініть ним рядок order: [...] у data/site.js.', 'ok'); })
+      .catch(function () {
+        var r = document.createRange(); r.selectNodeContents($('line'));
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        status('Рядок виділено, натисніть Ctrl+C (або Cmd+C).', 'ok');
+      });
+  });
+
+  $('save').addEventListener('click', async function () {
+    if (!('showDirectoryPicker' in window)) { $('copy').click(); return; }
+    try {
+      if (!siteDir) siteDir = await window.showDirectoryPicker({ id: 'portfolio-site', mode: 'readwrite' });
+      var data;
+      try { data = await siteDir.getDirectoryHandle('data'); }
+      catch (e) { siteDir = null; status('У вибраній папці немає папки data. Оберіть папку сайту, де лежить index.html.', 'err'); return; }
+      var fh = await data.getFileHandle('site.js');
+      var text = await (await fh.getFile()).text();
+      var re = /order:\s*\[[^\]]*\],?/;
+      var line = $('line').textContent;
+      var out;
+      if (re.test(text)) out = text.replace(re, line);
+      else out = text.replace(/(\n\s*projects:\s*\[)/, '\n  ' + line + '\n$1');
+      if (out === text && !re.test(text)) { status('Не знайшов, куди вписати порядок. Скопіюйте рядок вручну.', 'err'); return; }
+      var w = await fh.createWritable(); await w.write(out); await w.close();
+      start = order.slice(); render();
+      status('Порядок збережено в data/site.js. Оновіть сторінку сайту, щоб побачити зміни.', 'ok');
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      status('Не вдалося зберегти: ' + (e && e.message ? e.message : e) + '. Скопіюйте рядок вручну.', 'err');
+    }
+  });
+
+  function status(msg, kind) { var s = $('status'); s.textContent = msg; s.className = 'status' + (kind ? ' ' + kind : ''); }
+  if (!('showDirectoryPicker' in window)) {
+    $('save').textContent = 'Скопіювати порядок';
+    $('saveHint').textContent = 'Ваш браузер не дозволяє зберігати прямо в папку. Скопіюйте рядок нижче й замініть ним рядок order: [...] у data/site.js. Щоб зберігати автоматично, відкрийте інструмент у Chrome або Edge.';
+  }
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frame Picker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0E0E0D; --panel: #1A1A19; --line: #262624; --line-strong: #3A3A37;
+  --ink: #EDEBE6; --ink-2: #B8B5AE; --ink-3: #8C8A85; --accent: #E0B36A; --danger: #E5786A;
+  --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; }
+h1 { margin: 0; font-size: 28px; font-weight: 500; letter-spacing: -0.02em; }
+.hint { color: var(--ink-3); font-size: 14px; line-height: 1.5; margin: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; }
+.btn:hover { border-color: var(--ink-2); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 500; }
+.btn.accent { background: var(--accent); color: #1a1408; border-color: var(--accent); font-weight: 500; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+select, input[type="text"] { min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--panel); }
+label.field { display: grid; gap: 6px; font-size: 13px; color: var(--ink-3); }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.stage { background: #000; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 320px; position: relative; }
+.stage video { display: block; max-width: 100%; max-height: 70vh; }
+.drop { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--ink-2); border: 2px dashed var(--line-strong); border-radius: 6px; text-align: center; padding: 24px; }
+.drop.over { border-color: var(--accent); color: var(--ink); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tc { font-family: var(--mono); font-size: 14px; color: var(--ink-2); min-width: 130px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.side { display: grid; gap: 20px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: grid; gap: 12px; }
+.box h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.cover { aspect-ratio: 16 / 9; background: var(--panel); border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: 13px; }
+.cover img { width: 100%; height: 100%; object-fit: contain; }
+.tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+.thumb { position: relative; border-radius: 4px; overflow: hidden; background: var(--panel); aspect-ratio: 16 / 9; }
+.thumb.v { aspect-ratio: 9 / 16; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .n { position: absolute; left: 4px; top: 4px; font-family: var(--mono); font-size: 11px; background: rgba(0,0,0,0.65); padding: 1px 5px; border-radius: 2px; }
+.thumb .x { position: absolute; right: 4px; top: 4px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(0,0,0,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.thumb .mv { position: absolute; bottom: 4px; display: flex; gap: 4px; right: 4px; }
+.thumb .mv button { width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(0,0,0,0.7); cursor: pointer; font-size: 12px; line-height: 1; }
+pre { margin: 0; padding: 12px; background: var(--panel); border-radius: 6px; font-family: var(--mono); font-size: 12px; white-space: pre-wrap; word-break: break-all; color: var(--ink-2); }
+.status { font-size: 14px; color: var(--ink-2); min-height: 20px; }
+.status.ok { color: #8FD19E; } .status.err { color: var(--danger); }
+kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 1px 6px; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Frame Picker</h1>
+    <p class="hint">Вибір обкладинки й кадрів для сайту з вашого відеофайлу. Усе працює на вашому компʼютері, нічого нікуди не завантажується.</p>
+  </header>
+
+  <section class="box">
+    <div class="row">
+      <label class="field">Проєкт
+        <select id="project"></select>
+      </label>
+      <label class="field" id="newSlugWrap" hidden>Назва папки нового проєкту (латиниця, дефіси)
+        <input type="text" id="newSlug" placeholder="nike-summer-ad" pattern="[a-z0-9-]+">
+      </label>
+      <label class="field">Розмір збереження
+        <select id="size">
+          <option value="1600" selected>1600 px по довшій стороні (рекомендовано)</option>
+          <option value="1920">1920 px</option>
+          <option value="1280">1280 px</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div style="display:grid;gap:12px;min-width:0">
+      <div class="stage" id="stage">
+        <video id="video" playsinline hidden></video>
+        <div class="drop" id="drop">
+          <div>Перетягніть сюди відеофайл (mp4, mov) або</div>
+          <label class="btn primary" style="display:inline-flex;align-items:center">Вибрати файл
+            <input type="file" id="file" accept="video/*" hidden>
+          </label>
+          <div class="hint">Найкраще брати фінальний експорт з DaVinci у високій якості.</div>
+        </div>
+      </div>
+      <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Позиція у відео" disabled>
+      <div class="controls">
+        <button class="btn" id="play" disabled>Play</button>
+        <button class="btn" id="back1s" disabled title="Shift + ←">−1 с</button>
+        <button class="btn" id="backF" disabled title="←">−1 кадр</button>
+        <button class="btn" id="fwdF" disabled title="→">+1 кадр</button>
+        <button class="btn" id="fwd1s" disabled title="Shift + →">+1 с</button>
+        <span class="tc" id="tc">00:00:00:00</span>
+        <label class="field" style="flex-direction:row;display:flex;align-items:center;gap:8px">fps
+          <select id="fps"><option>23.976</option><option selected>25</option><option>29.97</option><option>30</option><option>50</option><option>60</option></select>
+        </label>
+      </div>
+      <div class="controls">
+        <button class="btn accent" id="setCover" disabled>Зробити обкладинкою <kbd>C</kbd></button>
+        <button class="btn primary" id="addFrame" disabled>Додати в Frames <kbd>F</kbd></button>
+        <span class="hint">Пробіл: play/pause. Стрілки: по кадру, з Shift: по секунді.</span>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="box">
+        <h2>Обкладинка</h2>
+        <div class="cover" id="coverBox">Ще не вибрано</div>
+      </div>
+      <div class="box">
+        <div class="row" style="justify-content:space-between"><h2>Frames <span id="fcount" class="hint"></span></h2>
+          <button class="btn" id="clearFrames" disabled>Очистити</button></div>
+        <div class="tray" id="tray"></div>
+        <p class="hint">Порядок тут = порядок на сайті. Стрілками під кадром можна переставити.</p>
+      </div>
+      <div class="box">
+        <h2>Зберегти</h2>
+        <button class="btn primary" id="saveFolder" disabled>Зберегти прямо в папку сайту</button>
+        <button class="btn" id="saveDownload" disabled>Завантажити файли</button>
+        <div class="status" id="status" role="status"></div>
+        <p class="hint" id="saveHint">«Зберегти прямо в папку сайту» працює в Chrome та Edge: оберіть папку сайту (ту, де лежить index.html). Інструмент сам покладе файли в img/&lt;проєкт&gt;/ і оновить список кадрів у data/site.js. В інших браузерах файли завантажаться, і їх треба буде перенести в папку проєкту вручну.</p>
+        <pre id="snippet" hidden></pre>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="../data/site.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var video = $('video'), scrub = $('scrub');
+  var cover = null;            // { blob, url }
+  var frames = [];             // [{ blob, url }]
+  var fileName = '';
+  var siteDir = null;          // FileSystemDirectoryHandle
+
+  // Project list
+  var projects = (window.SITE && window.SITE.projects) || [];
+  var sel = $('project');
+  sel.innerHTML = projects.map(function (p) {
+    return '<option value="' + p.slug + '">' + p.title + ' (' + p.slug + ')</option>';
+  }).join('') + '<option value="__new">+ Новий проєкт…</option>';
+  sel.addEventListener('change', function () {
+    $('newSlugWrap').hidden = sel.value !== '__new';
+    updateSnippet();
+  });
+  $('newSlug').addEventListener('input', updateSnippet);
+  function slug() {
+    if (sel.value !== '__new') return sel.value;
+    return ($('newSlug').value || '').trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  // Load video
+  function load(file) {
+    if (!file || !/^video\//.test(file.type)) { status('Це не відеофайл. Оберіть mp4 або mov.', 'err'); return; }
+    fileName = file.name;
+    video.src = URL.createObjectURL(file);
+    video.hidden = false;
+    $('drop').hidden = true;
+    status('');
+  }
+  $('file').addEventListener('change', function (e) { load(e.target.files[0]); });
+  var stage = $('stage');
+  stage.addEventListener('dragover', function (e) { e.preventDefault(); $('drop').classList.add('over'); });
+  stage.addEventListener('dragleave', function () { $('drop').classList.remove('over'); });
+  stage.addEventListener('drop', function (e) { e.preventDefault(); $('drop').classList.remove('over'); load(e.dataTransfer.files[0]); });
+
+  video.addEventListener('loadedmetadata', function () {
+    ['play', 'back1s', 'backF', 'fwdF', 'fwd1s', 'setCover', 'addFrame'].forEach(function (id) { $(id).disabled = false; });
+    scrub.disabled = false;
+    video.currentTime = Math.min(1, video.duration / 2);
+  });
+
+  // Transport
+  function fps() { return parseFloat($('fps').value); }
+  function seek(t) { video.pause(); video.currentTime = Math.max(0, Math.min(video.duration - 0.001, t)); }
+  function tc(t) {
+    var f = fps(), total = Math.round(t * f), fr = Math.round(f);
+    var ff = total % fr, s = Math.floor(total / fr);
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(Math.floor(s / 3600)) + ':' + p(Math.floor(s / 60) % 60) + ':' + p(s % 60) + ':' + p(ff);
+  }
+  video.addEventListener('timeupdate', sync);
+  video.addEventListener('seeked', sync);
+  function sync() {
+    $('tc').textContent = tc(video.currentTime);
+    if (video.duration) scrub.value = Math.round(video.currentTime / video.duration * 1000);
+    $('play').textContent = video.paused ? 'Play' : 'Pause';
+  }
+  scrub.addEventListener('input', function () { seek(scrub.value / 1000 * video.duration); });
+  $('play').addEventListener('click', function () { video.paused ? video.play() : video.pause(); });
+  video.addEventListener('play', sync); video.addEventListener('pause', sync);
+  $('back1s').addEventListener('click', function () { seek(video.currentTime - 1); });
+  $('fwd1s').addEventListener('click', function () { seek(video.currentTime + 1); });
+  $('backF').addEventListener('click', function () { seek(video.currentTime - 1 / fps()); });
+  $('fwdF').addEventListener('click', function () { seek(video.currentTime + 1 / fps()); });
+  document.addEventListener('keydown', function (e) {
+    if (video.hidden || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && document.activeElement.type !== 'range') return;
+    var k = e.key;
+    if (k === ' ') { e.preventDefault(); $('play').click(); }
+    else if (k === 'ArrowLeft') { e.preventDefault(); seek(video.currentTime - (e.shiftKey ? 1 : 1 / fps())); }
+    else if (k === 'ArrowRight') { e.preventDefault(); seek(video.currentTime + (e.shiftKey ? 1 : 1 / fps())); }
+    else if (k === 'c' || k === 'C' || k === 'с' || k === 'С') { grab().then(setCover); }
+    else if (k === 'f' || k === 'F' || k === 'а' || k === 'А') { grab().then(addFrame); }
+  });
+
+  // Capture the current frame as JPEG
+  function grab() {
+    video.pause();
+    var long = parseInt($('size').value, 10);
+    var w = video.videoWidth, h = video.videoHeight;
+    var s = Math.min(1, long / Math.max(w, h));
+    var c = document.createElement('canvas');
+    c.width = Math.round(w * s); c.height = Math.round(h * s);
+    var ctx = c.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(video, 0, 0, c.width, c.height);
+    return new Promise(function (res) {
+      c.toBlob(function (b) { res({ blob: b, url: URL.createObjectURL(b), vertical: h > w }); }, 'image/jpeg', 0.86);
+    });
+  }
+  function setCover(f) {
+    cover = f;
+    $('coverBox').innerHTML = '<img src="' + f.url + '" alt="Обкладинка">';
+    $('coverBox').style.aspectRatio = f.vertical ? '9 / 16' : '16 / 9';
+    refresh();
+    status('Обкладинку вибрано: ' + tc(video.currentTime), 'ok');
+  }
+  function addFrame(f) { frames.push(f); refresh(); status('Кадр ' + frames.length + ' додано: ' + tc(video.currentTime), 'ok'); }
+  $('setCover').addEventListener('click', function () { grab().then(setCover); });
+  $('addFrame').addEventListener('click', function () { grab().then(addFrame); });
+  $('clearFrames').addEventListener('click', function () { frames = []; refresh(); });
+
+  function name(i) { return (i < 9 ? '0' : '') + (i + 1) + '.jpg'; }
+  function refresh() {
+    $('tray').innerHTML = frames.map(function (f, i) {
+      return '<div class="thumb' + (f.vertical ? ' v' : '') + '"><img src="' + f.url + '" alt="Кадр ' + (i + 1) + '">' +
+        '<span class="n">' + name(i) + '</span>' +
+        '<button class="x" data-del="' + i + '" aria-label="Видалити кадр ' + (i + 1) + '">✕</button>' +
+        '<span class="mv"><button data-up="' + i + '" aria-label="Перемістити вліво">‹</button><button data-down="' + i + '" aria-label="Перемістити вправо">›</button></span></div>';
+    }).join('');
+    $('fcount').textContent = frames.length ? '(' + frames.length + ')' : '';
+    $('clearFrames').disabled = !frames.length;
+    var any = !!cover || frames.length > 0;
+    $('saveFolder').disabled = !any || !('showDirectoryPicker' in window);
+    $('saveDownload').disabled = !any;
+    updateSnippet();
+  }
+  $('tray').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var i;
+    if (b.dataset.del != null) { frames.splice(+b.dataset.del, 1); }
+    else if (b.dataset.up != null && (i = +b.dataset.up) > 0) { frames.splice(i - 1, 0, frames.splice(i, 1)[0]); }
+    else if (b.dataset.down != null && (i = +b.dataset.down) < frames.length - 1) { frames.splice(i + 1, 0, frames.splice(i, 1)[0]); }
+    refresh();
+  });
+
+  function framesLine() {
+    return 'frames: [' + frames.map(function (f, i) { return '"' + name(i) + '"'; }).join(', ') + ']';
+  }
+  function updateSnippet() {
+    var pre = $('snippet');
+    if (!frames.length) { pre.hidden = true; return; }
+    pre.hidden = false;
+    pre.textContent = 'Рядок для проєкту «' + (slug() || '…') + '» у data/site.js:\n' + framesLine() + ',';
+  }
+
+  function status(msg, kind) { var s = $('status'); s.textContent = msg; s.className = 'status' + (kind ? ' ' + kind : ''); }
+
+  // Save into the site folder (Chrome, Edge)
+  $('saveFolder').addEventListener('click', async function () {
+    var sl = slug();
+    if (!sl) { status('Впишіть назву папки нового проєкту.', 'err'); return; }
+    try {
+      if (!siteDir) siteDir = await window.showDirectoryPicker({ id: 'portfolio-site', mode: 'readwrite' });
+      var img;
+      try { img = await siteDir.getDirectoryHandle('img'); }
+      catch (e) { siteDir = null; status('У вибраній папці немає папки img. Оберіть папку сайту, де лежить index.html.', 'err'); return; }
+      var dir = await img.getDirectoryHandle(sl, { create: true });
+      if (cover) await write(dir, 'cover.jpg', cover.blob);
+      var updated = false;
+      if (frames.length) {
+        for await (var entry of dir.values()) {
+          if (entry.kind === 'file' && /^\d{2}\.jpg$/.test(entry.name)) await dir.removeEntry(entry.name);
+        }
+        for (var i = 0; i < frames.length; i++) await write(dir, name(i), frames[i].blob);
+        updated = await updateSiteJs(sl);
+      }
+      var parts = [];
+      if (cover) parts.push('обкладинку');
+      if (frames.length) parts.push(frames.length + ' кадр(ів)');
+      status('Збережено ' + parts.join(' і ') + ' в img/' + sl + '/.' +
+        (frames.length ? (updated ? ' Список кадрів у data/site.js оновлено.' : ' Список кадрів у data/site.js оновіть вручну рядком нижче.') : '') +
+        (sel.value === '__new' ? ' Не забудьте додати новий проєкт у data/site.js.' : ''), 'ok');
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      status('Не вдалося зберегти: ' + (e && e.message ? e.message : e) + '. Спробуйте «Завантажити файли».', 'err');
+    }
+  });
+  async function write(dir, fname, blob) {
+    var fh = await dir.getFileHandle(fname, { create: true });
+    var w = await fh.createWritable(); await w.write(blob); await w.close();
+  }
+  // Replace the frames list of this project in data/site.js
+  async function updateSiteJs(sl) {
+    try {
+      var data = await siteDir.getDirectoryHandle('data');
+      var fh = await data.getFileHandle('site.js');
+      var text = await (await fh.getFile()).text();
+      var at = text.indexOf('slug: "' + sl + '"');
+      if (at < 0) return false;
+      var nextSlug = text.indexOf('slug: "', at + 7);
+      var end = nextSlug < 0 ? text.length : nextSlug;
+      var block = text.slice(at, end);
+      var re = /frames:\s*\[[^\]]*\]/;
+      if (!re.test(block)) return false;
+      var out = text.slice(0, at) + block.replace(re, framesLine()) + text.slice(end);
+      var w = await fh.createWritable(); await w.write(out); await w.close();
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // Fallback: download the files
+  $('saveDownload').addEventListener('click', function () {
+    var list = [];
+    if (cover) list.push(['cover.jpg', cover.url]);
+    frames.forEach(function (f, i) { list.push([name(i), f.url]); });
+    list.forEach(function (it, k) {
+      setTimeout(function () {
+        var a = document.createElement('a'); a.href = it[1]; a.download = it[0];
+        document.body.appendChild(a); a.click(); a.remove();
+      }, k * 250);
+    });
+    status('Файли завантажено. Перенесіть їх у папку img/' + (slug() || '<проєкт>') + '/ і замініть старі. Список кадрів для data/site.js нижче.', 'ok');
+  });
+
+  if (!('showDirectoryPicker' in window)) {
+    $('saveHint').textContent = 'Ваш браузер не дозволяє зберігати прямо в папку. Файли завантажаться, і їх треба перенести в img/<проєкт>/ вручну. Щоб зберігати одразу в папку сайту, відкрийте інструмент у Chrome або Edge.';
+  }
+  refresh();
+})();
+</script>
+</body>
+</html>
