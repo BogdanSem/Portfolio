@@ -167,7 +167,9 @@ textarea { min-height: 110px; padding: 10px 12px; border-radius: 8px; border: 1p
 
   <div id="board" hidden>
     <div class="add-row"><button class="btn accent" id="addProject">+ Додати відео</button></div>
-    <div class="sec" style="margin-top:16px"><h2>Work — сітка робіт</h2><span class="hint">Перетягуйте картки, щоб змінити порядок</span></div>
+    <div class="sec" style="margin-top:16px"><h2>Showreel — головне відео</h2></div>
+    <div class="grid work" id="grid-sr"></div>
+    <div class="sec"><h2>Work — сітка робіт</h2><span class="hint">Перетягуйте картки, щоб змінити порядок</span></div>
     <div class="grid work" id="grid-work" data-g="work"></div>
     <div class="sec"><h2>Social — стрічка вертикальних відео</h2><span class="hint">Порядок тут = порядок у стрічці на сайті</span></div>
     <div class="grid reels" id="grid-reels" data-g="reels"></div>
@@ -273,7 +275,7 @@ textarea { min-height: 110px; padding: 10px 12px; border-radius: 8px; border: 1p
           <h3>Обкладинка <button class="btn small" id="coverReset" hidden>Повернути стару</button></h3>
           <div class="coverbox" id="coverBox"></div>
         </div>
-        <div class="box">
+        <div class="box" id="framesBox">
           <h3><span>Вибрані кадри <span class="hint" id="fcount"></span></span></h3>
           <div class="tray" id="tray"></div>
           <p class="hint" style="font-size:13px">Порядок тут = порядок на сторінці проєкту. Стрілками переставляйте, ✕ прибирає кадр.</p>
@@ -484,6 +486,7 @@ function serializeSite(site) {
     var n = changedSlugs().length;
     if (draft.order.join() !== saved.order.join()) n++;
     if (JSON.stringify(draft.clients) !== JSON.stringify(saved.clients)) n++;
+    if (srChanged()) n++;
     return n;
   }
   function syncButtons() {
@@ -500,7 +503,19 @@ function serializeSite(site) {
   function coverUrl(slug) { return media[slug] && media[slug].cover ? media[slug].cover.url : imgUrl(slug, savedCover(slug)); }
   function group(g) { return draft.order.filter(function (s) { return !!proj(s).vertical === (g === 'reels'); }); }
   function setGroup(g, list) { draft.order = g === 'reels' ? group('work').concat(list) : list.concat(group('reels')); }
+  var SR = '__showreel';
+  function srChanged() { return JSON.stringify(draft.showreel) !== JSON.stringify(saved.showreel) || !!media[SR]; }
+  function renderShowreel() {
+    var sr = draft.showreel || {};
+    var src = media[SR] && media[SR].cover ? media[SR].cover.url : '../' + sr.cover + '?v=' + ver;
+    $('grid-sr').innerHTML = '<div class="card" style="cursor:default"><div class="thumb"><span class="ph">Немає обкладинки</span><img src="' + esc(src) + '" alt="" onerror="this.remove()">' +
+      (srChanged() ? '<span class="badge">ЗМІНЕНО</span>' : '') + '</div>' +
+      '<div class="meta"><div class="title">Showreel</div><div class="cat">Vimeo ' + esc(sr.vimeo) + ' · ' + esc(sr.length || '') + '</div></div>' +
+      '<div class="actions"><button class="edit" id="editSr">Обкладинка і посилання</button></div></div>';
+    $('editSr').addEventListener('click', openShowreel);
+  }
   function render() {
+    renderShowreel();
     var changed = {}; changedSlugs().forEach(function (s) { changed[s] = true; });
     ['work', 'reels'].forEach(function (g) {
       var list = group(g);
@@ -585,7 +600,26 @@ function serializeSite(site) {
     $('fParent').innerHTML = '<option value="">— окремий проєкт —</option>' + draft.order.map(function (sl) { return proj(sl); }).filter(function (p) { return p.slug !== cur && !p.parent; })
       .map(function (p) { return '<option value="' + esc(p.slug) + '">' + esc(p.title) + '</option>'; }).join('');
   }
+  function setMode(isSr) {
+    $('paneInfo').querySelectorAll('.form-grid > *').forEach(function (el) {
+      el.hidden = isSr && !el.querySelector('#fVimeo, #fLength');
+    });
+    $('framesBox').hidden = isSr; $('addFrame').hidden = isSr;
+    $('tabMedia').textContent = isSr ? 'Обкладинка' : 'Обкладинка і кадри';
+  }
+  function openShowreel() {
+    cur = SR;
+    var sr = draft.showreel || {};
+    wp = { title: 'Showreel', vimeo: sr.vimeo || '', length: sr.length || '', frames: [] };
+    wm = { cover: media[SR] && media[SR].cover || null, frames: {} };
+    setMode(true);
+    $('edTitle').textContent = 'Showreel';
+    $('fVimeo').value = wp.vimeo; $('fLength').value = wp.length;
+    $('edDelete').hidden = true;
+    resetVideo(); showTab('media'); drawMedia(); dlg.showModal();
+  }
   function openEditor(slug) {
+    setMode(false);
     cur = slug || null;
     if (cur) {
       wp = clone(proj(cur));
@@ -646,6 +680,17 @@ function serializeSite(site) {
     wTrusted = $('fTrusted').checked;
   }
   function closeEditor(apply) {
+    if (apply && cur === SR) {
+      var id = vimeoId($('fVimeo').value);
+      if (!id) { showTab('info'); toast('Вставте посилання на шоурил у Vimeo.', 'err'); return; }
+      draft.showreel = Object.assign({}, draft.showreel, { vimeo: id, length: $('fLength').value.trim() });
+      if (wm.cover) {
+        if (!wm.cover.name) wm.cover.name = 'cover-' + Date.now().toString(36) + '.jpg';
+        draft.showreel.cover = 'img/showreel/' + wm.cover.name;
+        media[SR] = wm;
+      } else { draft.showreel.cover = saved.showreel.cover; delete media[SR]; }
+      render(); video.pause(); dlg.close(); return;
+    }
     if (apply) {
       readForm();
       if (!wp.title) { showTab('info'); toast('Впишіть назву відео.', 'err'); $('fTitle').focus(); return; }
@@ -704,10 +749,11 @@ function serializeSite(site) {
     var v = !!wp.vertical;
     $('coverBox').classList.toggle('v', v);
     $('tray').classList.toggle('v', v);
-    var src = wm.cover ? wm.cover.url : (cur ? imgUrl(cur, savedCover(cur)) : '');
+    var src = wm.cover ? wm.cover.url : (cur === SR ? '../' + saved.showreel.cover + '?v=' + ver : cur ? imgUrl(cur, savedCover(cur)) : '');
     $('coverBox').innerHTML = src ? '<span class="ph">Немає обкладинки. Відкрийте відео й натисніть «Зробити обкладинкою».</span><img src="' + esc(src) + '" alt="Обкладинка" onerror="this.remove()" style="position:relative">'
       : '<span class="ph">Відкрийте відео й натисніть «Зробити обкладинкою».</span>';
     $('coverReset').hidden = !wm.cover || !cur;
+    if (cur === SR) return;
     $('tray').innerHTML = wp.frames.length ? wp.frames.map(function (f, i) {
       return '<div class="fr"><img src="' + esc(frameUrl(f)) + '" alt="Кадр ' + (i + 1) + '">' +
         '<span class="n">' + (i + 1) + '</span>' + (wm.frames[f] ? '<span class="new">НОВИЙ</span>' : '') +
@@ -777,7 +823,7 @@ function serializeSite(site) {
     else if (k === 'ArrowLeft') { e.preventDefault(); seek(video.currentTime - (e.shiftKey ? 1 : 1 / fps())); }
     else if (k === 'ArrowRight') { e.preventDefault(); seek(video.currentTime + (e.shiftKey ? 1 : 1 / fps())); }
     else if (/^[cCсС]$/.test(k)) grab().then(setCover);
-    else if (/^[fFаА]$/.test(k)) grab().then(addFrame);
+    else if (/^[fFаА]$/.test(k) && cur !== SR) grab().then(addFrame);
   });
   function grab() {
     video.pause();
@@ -810,6 +856,12 @@ function serializeSite(site) {
         if (p.frames.indexOf(name) >= 0) writes.push({ path: 'img/' + slug + '/' + name, blob: m.frames[name].blob });
       });
     });
+    if (media[SR] && media[SR].cover) {
+      writes.push({ path: draft.showreel.cover, blob: media[SR].cover.blob });
+      // the same frame also goes to cover.jpg, which link previews (Upwork, Messenger) use
+      writes.push({ path: 'img/showreel/cover.jpg', blob: media[SR].cover.blob });
+      if (saved.showreel.cover && saved.showreel.cover !== draft.showreel.cover && !/\/cover\.jpg$/.test(saved.showreel.cover)) deletes.push(saved.showreel.cover);
+    }
     saved.projects.forEach(function (sp) {
       var dp = proj(sp.slug);
       var sc = sp.cover || 'cover.jpg';
