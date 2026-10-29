@@ -183,7 +183,7 @@ kbd { font-family: var(--mono); font-size: 11px; border: 1px solid currentColor;
           <button class="btn small" id="fwdF" disabled>+1 кадр</button>
           <button class="btn small" id="fwd1s" disabled>+1 с</button>
           <span class="tc" id="tc">00:00:00:00</span>
-          <label class="btn small" style="display:inline-flex;align-items:center" id="otherFile" hidden>Інший файл<input type="file" accept="video/*" hidden></label>
+          <button type="button" class="btn small" id="otherFile" hidden>Інший файл</button>
           <select id="fps" aria-label="Кадрів на секунду" style="width:auto;min-height:32px"><option>23.976</option><option selected>25</option><option>29.97</option><option>30</option><option>50</option><option>60</option></select>
         </div>
         <div class="controls">
@@ -428,6 +428,7 @@ kbd { font-family: var(--mono); font-size: 11px; border: 1px solid currentColor;
     var p = bySlug[slug], e = edits[slug];
     draft = e ? { cover: e.cover, frames: e.frames.slice() }
       : { cover: null, frames: (p.frames || []).map(function (f) { return { name: f, url: imgUrl(slug, f) }; }) };
+    resetVideo();
     $('edTitle').textContent = p.title;
     $('coverBox').classList.toggle('v', !!p.vertical);
     $('tray').classList.toggle('v', !!p.vertical);
@@ -471,12 +472,20 @@ kbd { font-family: var(--mono); font-size: 11px; border: 1px solid currentColor;
   });
 
   // Video
+  function resetVideo() {
+    video.pause();
+    if (video.src) { URL.revokeObjectURL(video.src); video.removeAttribute('src'); video.load(); }
+    video.hidden = true; $('drop').hidden = false; $('otherFile').hidden = true;
+    ['play', 'back1s', 'backF', 'fwdF', 'fwd1s', 'setCover', 'addFrame'].forEach(function (id) { $(id).disabled = true; });
+    scrub.disabled = true; scrub.value = 0; $('tc').textContent = '00:00:00:00';
+  }
   function loadVideo(file) {
     if (!file || !/^video\//.test(file.type)) { toast('Це не відеофайл. Оберіть mp4 або mov.', 'err'); return; }
+    if (video.src) URL.revokeObjectURL(video.src);
     video.src = URL.createObjectURL(file); video.hidden = false; $('drop').hidden = true; $('otherFile').hidden = false;
   }
   $('file').addEventListener('change', function (e) { loadVideo(e.target.files[0]); e.target.value = ''; });
-  $('otherFile').querySelector('input').addEventListener('change', function (e) { loadVideo(e.target.files[0]); e.target.value = ''; });
+  $('otherFile').addEventListener('click', function () { $('file').click(); });
   var stage = $('stage');
   stage.addEventListener('dragover', function (e) { e.preventDefault(); $('drop').classList.add('over'); });
   stage.addEventListener('dragleave', function () { $('drop').classList.remove('over'); });
