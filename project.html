@@ -26,7 +26,13 @@
   <span>Edited &amp; graded in DaVinci Resolve · Remote from Ukraine</span>
 </footer>
 
-<script src="data/site.js"></script>
-<script src="assets/app.js"></script>
+<script>
+  // Always load fresh data, so changes from the admin panel show up right away
+  (function () {
+    var v = Date.now();
+    function load(src, next) { var s = document.createElement('script'); s.src = src + '?v=' + v; s.onload = next; document.body.appendChild(s); }
+    load('data/site.js', function () { load('assets/app.js'); });
+  })();
+</script>
 </body>
 </html>
