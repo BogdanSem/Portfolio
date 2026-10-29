@@ -64,7 +64,7 @@ window.SITE = {
     }
   ],
   categories: ["Commercials", "Brand Stories", "Documentary", "YouTube & Podcasts", "Reels"],
-  order: ["carlotti-paris", "scott-marshall", "vocations", "evidence-strong", "evidence-strong-reels", "youtube-leo", "youtube-leo-short", "youtube-business-fr", "innerspace", "lrd-new-york", "lrd-washington", "lrd-mexico-city", "uon-earth", "sanctum-promo", "sanctum-app-ad", "sanctum-launch", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "jack-the-grower-2", "lrd-interviews", "lrd-matt-wiley"],
+  order: ["carlotti-paris", "scott-marshall", "vocations", "evidence-strong", "youtube-leo", "youtube-business-fr", "evidence-strong-reels", "innerspace", "youtube-leo-short", "lrd-new-york", "lrd-washington", "lrd-mexico-city", "uon-earth", "sanctum-promo", "sanctum-app-ad", "sanctum-launch", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "jack-the-grower-2", "lrd-interviews", "lrd-matt-wiley"],
   projects: [
     {
       slug: "carlotti-paris",
