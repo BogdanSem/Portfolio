@@ -38,7 +38,7 @@ window.SITE = {
 
   // Order of projects on the site. Change it in the admin panel (admin/) or by hand.
   // Projects missing from this list go to the end.
-  order: ["carlotti-paris", "scott-marshall", "innerspace", "lrd-new-york", "vocations", "uon-earth", "sanctum-promo", "evidence-strong", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "youtube-leo", "lrd-interviews", "youtube-business-fr"],
+  order: ["carlotti-paris", "scott-marshall", "vocations", "evidence-strong", "youtube-leo", "youtube-business-fr", "innerspace", "lrd-new-york", "uon-earth", "sanctum-promo", "nightlife-card", "cleverbiz-the-build", "jack-the-grower", "lrd-interviews"],
 
   /*
     Project fields:
@@ -66,7 +66,7 @@ window.SITE = {
       vertical: false,
       brief: "A fashion film for an eyewear brand: a model among bas-reliefs and colonnades.",
       did: "",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"]
+      frames: ["01.jpg", "02.jpg", "fmvtkgwh8.jpg", "04.jpg", "fmvtkhjkp.jpg", "fmvtkhdwu.jpg"]
     },
     {
       slug: "scott-marshall",
@@ -81,7 +81,7 @@ window.SITE = {
       vertical: false,
       brief: "A brand film for a Florida injury law firm, shot in difficult lighting conditions.",
       did: "I graded the whole film into one consistent look and fixed the problem areas shot by shot.",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
+      frames: ["fmvtkihbj.jpg", "fmvtkijby.jpg", "fmvtkin46.jpg", "fmvtkiq6e.jpg", "fmvtkj9hf.jpg", "fmvtkj4tu.jpg"],
       quote: { text: "Bohdan is an expert in color grading. Quick, efficient, does quality work!", source: "Upwork review, 2025" }
     },
     {
@@ -97,7 +97,7 @@ window.SITE = {
       vertical: true,
       brief: "A short fashion film on a clean high-key set.",
       did: "Graded in DaVinci Resolve with careful control of highlights and skin tone, then retouched frame by frame (skin, even tone, makeup, blemishes) for an editorial finish.",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"]
+      frames: ["fmvtknzka.jpg", "fmvtko1hf.jpg", "fmvtko3wv.jpg", "fmvtko5ne.jpg"]
     },
     {
       slug: "lrd-new-york",
@@ -116,7 +116,7 @@ window.SITE = {
         { vimeo: "865903832", title: "Washington, D.C.", cover: "img/lrd-washington/cover.jpg" },
         { vimeo: "861541218", title: "Mexico City", cover: "img/lrd-mexico-city/cover.jpg" }
       ],
-      frames: ["01.jpg", "02.jpg", "03.jpg", "../lrd-washington/01.jpg", "../lrd-washington/02.jpg", "../lrd-mexico-city/01.jpg"]
+      frames: ["fmvtkp0wx.jpg", "fmvtkpa3n.jpg", "fmvtkpcfs.jpg", "fmvtkpeul.jpg", "fmvtkphao.jpg", "fmvtkpjtk.jpg", "fmvtkppty.jpg", "fmvtkptnv.jpg"]
     },
     {
       slug: "vocations",
@@ -131,7 +131,7 @@ window.SITE = {
       vertical: false,
       brief: "Trailer for a documentary about women in construction and craft trades.",
       did: "I graded the documentary. The footage came with many technical problems, and I solved them to reach a clean, consistent result.",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"]
+      frames: ["fmvtkjvo2.jpg", "fmvtkjy6c.jpg", "fmvtkk20w.jpg", "fmvtkk6ch.jpg", "fmvtkke36.jpg", "fmvtkkhg9.jpg"]
     },
     {
       slug: "uon-earth",
@@ -146,7 +146,7 @@ window.SITE = {
       vertical: true,
       brief: "Short videos for a brand that protects the planet square metre by square metre: anyone can protect a real m² of nature from €1.20.",
       did: "Edited and graded for social: a clean, natural, earthy look that stays warm and on-brand but bright enough to stop the scroll.",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"]
+      frames: ["fmvtkqhrg.jpg", "fmvtkqjff.jpg", "fmvtkqokv.jpg", "fmvtkqtzs.jpg"]
     },
     {
       slug: "sanctum-promo",
@@ -165,7 +165,7 @@ window.SITE = {
         { vimeo: "1240734573", title: "App ad, 5 to 45 minutes", cover: "img/sanctum-app-ad/cover.jpg" },
         { vimeo: "1164921024", title: "Launch and waitlist ad", cover: "img/sanctum-launch/cover.jpg" }
       ],
-      frames: ["01.jpg", "02.jpg", "03.jpg"]
+      frames: ["fmvtkrqys.jpg", "fmvtkrt9k.jpg", "fmvtkrxxf.jpg", "fmvtks2yv.jpg"]
     },
     {
       slug: "evidence-strong",
@@ -183,7 +183,7 @@ window.SITE = {
       versions: [
         { vimeo: "920089469", title: "Instagram shorts", cover: "img/evidence-strong-reels/cover.jpg" }
       ],
-      frames: ["01.jpg", "02.jpg"]
+      frames: ["01.jpg", "02.jpg", "fmvtkkvll.jpg"]
     },
     {
       slug: "nightlife-card",
@@ -198,7 +198,7 @@ window.SITE = {
       vertical: true,
       brief: "An ad for the Nightlife Card app: a night out in London for a fraction of the price, from pizza and mini golf to cocktails and a club.",
       did: "",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg"]
+      frames: ["fmvtkswom.jpg", "fmvtkt1q9.jpg", "fmvtkt9wu.jpg"]
     },
     {
       slug: "cleverbiz-the-build",
@@ -213,7 +213,7 @@ window.SITE = {
       vertical: true,
       brief: "The first episode of “The Build”: a founder's story from Thailand to Dubai, made for Instagram and TikTok.",
       did: "Edit, color and titles, refined over several rounds of client feedback.",
-      frames: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"]
+      frames: ["fmvtku186.jpg", "fmvtku628.jpg", "fmvtku85j.jpg", "fmvtkuapf.jpg", "fmvtkuep0.jpg", "fmvtkujuq.jpg", "fmvtkusi4.jpg", "fmvtkupn3.jpg"]
     },
     {
       slug: "jack-the-grower",
@@ -231,7 +231,7 @@ window.SITE = {
       versions: [
         { vimeo: "1094404206", title: "Second ad", cover: "" }
       ],
-      frames: ["01.jpg", "02.jpg"]
+      frames: ["fmvtkv9i5.jpg", "fmvtkvlj9.jpg", "fmvtkvgek.jpg", "fmvtkvop5.jpg", "fmvtkvqby.jpg", "fmvtkvtt2.jpg", "fmvtkvwer.jpg"]
     },
     {
       slug: "youtube-leo",
@@ -249,7 +249,7 @@ window.SITE = {
       versions: [
         { vimeo: "920082905", title: "Short-form version", cover: "" }
       ],
-      frames: ["01.jpg", "02.jpg", "03.jpg"]
+      frames: ["fmvtklnis.jpg", "fmvtklq6b.jpg", "fmvtkluaa.jpg", "fmvtklwu4.jpg", "fmvtklynr.jpg", "fmvtkm4df.jpg"]
     },
     {
       slug: "lrd-interviews",
@@ -267,7 +267,7 @@ window.SITE = {
       versions: [
         { vimeo: "861542333", title: "Matt Wiley, RE.", cover: "" }
       ],
-      frames: []
+      frames: ["fmvtkwa7o.jpg", "fmvtkwod3.jpg", "fmvtkwix9.jpg"]
     },
     {
       slug: "youtube-business-fr",
@@ -282,7 +282,7 @@ window.SITE = {
       vertical: false,
       brief: "A French-language YouTube video about scaling a business, with animated graphics.",
       did: "",
-      frames: ["01.jpg", "02.jpg"]
+      frames: ["fmvtkmn75.jpg", "fmvtkmq3z.jpg", "fmvtkmrsz.jpg", "fmvtkmtqi.jpg", "fmvtkmwpc.jpg", "fmvtkn56k.jpg"]
     }
   ]
 };
