@@ -27,12 +27,7 @@ window.SITE = {
     linkedin: "https://www.linkedin.com/in/bohdan-semchyshyn",
     instagram: "https://www.instagram.com/semchyshyn_b"
   },
-  showreel: {
-    vimeo: "1219844988",
-    cover: "img/showreel/cover-mvtn5dj6.jpg",
-    length: "0:30",
-    preview: "img/showreel/loop-mwdk89wx.mp4"
-  },
+  showreel: { vimeo: "1219844988", cover: "img/showreel/cover-mvtn5dj6.jpg", length: "0:30" },
   clients: ["Carlotti Paris", "Sanctum Digital", "Little Red Door", "Scott Marshall Injury Attorneys", "Evidence Strong Show", "UON.EARTH", "Nightlife Card", "CleverBiz AI", "Innerspace"],
   reviews: [
     {
@@ -89,7 +84,8 @@ window.SITE = {
       brief: "A fashion film for an eyewear brand: a model among bas-reliefs and colonnades.",
       did: "",
       frames: ["01.jpg", "02.jpg", "fmvtkgwh8.jpg", "04.jpg", "fmvtkhjkp.jpg", "fmvtkhdwu.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkalc8.mp4"
     },
     {
       slug: "scott-marshall",
