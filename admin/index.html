@@ -131,6 +131,8 @@ textarea { min-height: 110px; padding: 10px 12px; border-radius: 8px; border: 1p
 .danger:hover:not(:disabled) { border-color: var(--danger) !important; }
 .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; font-size: 12px; color: var(--ink-3); }
 .parent-tag { font-size: 12px; color: var(--accent); }
+.setup code, .panel code { font-family: var(--mono); font-size: 12px; background: var(--panel-2); padding: 1px 6px; border-radius: 4px; }
+#pvBox video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .add-row { display: flex; justify-content: flex-end; margin-top: 32px; }
 </style>
 </head>
@@ -184,6 +186,14 @@ textarea { min-height: 110px; padding: 10px 12px; border-radius: 8px; border: 1p
     <div class="grid work" id="grid-work" data-g="work"></div>
     <div class="sec"><h2>Social — стрічка вертикальних відео</h2><span class="hint">Порядок тут = порядок у стрічці на сайті</span></div>
     <div class="grid reels" id="grid-reels" data-g="reels"></div>
+
+    <div class="sec"><h2>Статистика відвідувань</h2></div>
+    <div class="panel" style="display:grid;gap:12px;max-width:760px">
+      <p class="hint">Безкоштовний лічильник GoatCounter без cookies: показує, скільки людей відкрило сайт, звідки вони прийшли і які відео запускали. Зареєструйтесь на <a href="https://www.goatcounter.com/signup" target="_blank" rel="noopener">goatcounter.com/signup</a>, придумайте код (наприклад <code>semchyshyn</code>) і впишіть його сюди. Статистику дивіться на <span id="gcLink">ваш-код.goatcounter.com</span>.</p>
+      <label class="field" style="max-width:320px">Код GoatCounter
+        <input type="text" id="gcCode" placeholder="semchyshyn" autocomplete="off" spellcheck="false">
+      </label>
+    </div>
   </div>
 </main>
 
@@ -286,6 +296,15 @@ textarea { min-height: 110px; padding: 10px 12px; border-radius: 8px; border: 1p
           <h3>Обкладинка <button class="btn small" id="coverReset" hidden>Повернути стару</button></h3>
           <div class="coverbox" id="coverBox"></div>
         </div>
+        <div class="box" id="previewBox">
+          <h3>Превʼю при наведенні <button class="btn small" id="pvRemove" hidden>Прибрати</button></h3>
+          <div class="coverbox" id="pvBox"></div>
+          <div class="row">
+            <select id="pvLen" aria-label="Тривалість превʼю" style="width:auto;min-height:32px;flex:none"></select>
+            <button class="btn primary small" id="pvRec" disabled>Записати з цього місця</button>
+          </div>
+          <p class="hint" style="font-size:13px" id="pvHint">Короткий кліп без звуку. На сайті він грає, коли наводиш мишку на картку. Поставте відео на початок потрібного фрагмента й натисніть «Записати».</p>
+        </div>
         <div class="box" id="framesBox">
           <h3><span>Вибрані кадри <span class="hint" id="fcount"></span></span></h3>
           <div class="tray" id="tray"></div>
@@ -319,8 +338,12 @@ var SITE_HEADER = [
   '    parent    – slug of the main project this video belongs to (optional)',
   '    brief, did – texts for "The brief" and "What I did" (empty hides the block)',
   '    frames    – file names of stills in img/<slug>/',
+  '    cover, thumb – cover image and its small copy for cards (set by the admin panel)',
+  '    preview   – short silent clip that plays on hover (set by the admin panel)',
   '    quote     – optional { text, source }',
   '  order: the order of projects on the site.',
+  '  showreel.preview: silent loop that plays as soon as the page opens.',
+  '  analytics.goatcounter: code of the GoatCounter visitor counter (optional).',
   '*/',
   ''
 ].join('\n');
@@ -503,6 +526,7 @@ function serializeSite(site) {
     if (draft.order.join() !== saved.order.join()) n++;
     if (JSON.stringify(draft.clients) !== JSON.stringify(saved.clients)) n++;
     if (srChanged()) n++;
+    if (JSON.stringify(draft.analytics || null) !== JSON.stringify(saved.analytics || null)) n++;
     return n;
   }
   function syncButtons() {
@@ -532,6 +556,9 @@ function serializeSite(site) {
   }
   function render() {
     renderShowreel();
+    var gc = (draft.analytics && draft.analytics.goatcounter) || '';
+    if (document.activeElement !== $('gcCode')) $('gcCode').value = gc;
+    $('gcLink').textContent = (gc || 'ваш-код') + '.goatcounter.com';
     var changed = {}; changedSlugs().forEach(function (s) { changed[s] = true; });
     ['work', 'reels'].forEach(function (g) {
       var list = group(g);
@@ -621,13 +648,19 @@ function serializeSite(site) {
       el.hidden = isSr && !el.querySelector('#fVimeo, #fLength');
     });
     $('framesBox').hidden = isSr; $('addFrame').hidden = isSr;
+    $('pvLen').innerHTML = isSr
+      ? '<option value="45" selected>Весь ролик (до 45 с)</option><option value="20">20 с</option><option value="10">10 с</option>'
+      : '<option value="3">3 с</option><option value="5" selected>5 с</option><option value="8">8 с</option>';
+    $('pvHint').textContent = isSr
+      ? 'Тиха копія шоурилу без звуку. Вона грає на сайті одразу, щойно людина відкрила сторінку. Поставте відео на початок і натисніть «Записати».'
+      : 'Короткий кліп без звуку. На сайті він грає, коли наводиш мишку на картку. Поставте відео на початок потрібного фрагмента й натисніть «Записати».';
     $('tabMedia').textContent = isSr ? 'Обкладинка' : 'Обкладинка і кадри';
   }
   function openShowreel() {
     cur = SR;
     var sr = draft.showreel || {};
     wp = { title: 'Showreel', vimeo: sr.vimeo || '', length: sr.length || '', frames: [] };
-    wm = { cover: media[SR] && media[SR].cover || null, frames: {} };
+    wm = { cover: media[SR] && media[SR].cover || null, frames: {}, preview: media[SR] && media[SR].preview || null, pvRemoved: !!(media[SR] && media[SR].pvRemoved) };
     setMode(true);
     $('edTitle').textContent = 'Showreel';
     $('fVimeo').value = wp.vimeo; $('fLength').value = wp.length;
@@ -640,10 +673,10 @@ function serializeSite(site) {
     if (cur) {
       wp = clone(proj(cur));
       var m = media[cur] || {};
-      wm = { cover: m.cover || null, frames: Object.assign({}, m.frames || {}) };
+      wm = { cover: m.cover || null, frames: Object.assign({}, m.frames || {}), preview: m.preview || null, pvRemoved: false };
     } else {
       wp = { slug: '', title: '', subtitle: '', client: '', category: (draft.categories || [''])[0], role: '', format: '16:9', length: '', vimeo: '', vertical: false, brief: '', did: '', frames: [] };
-      wm = { cover: null, frames: {} };
+      wm = { cover: null, frames: {}, preview: null, pvRemoved: false };
     }
     fillLists();
     $('edTitle').textContent = cur ? wp.title : 'Нове відео';
@@ -695,7 +728,10 @@ function serializeSite(site) {
     if (q) wp.quote = { text: q, source: $('fQuoteSrc').value.trim() }; else delete wp.quote;
     wTrusted = $('fTrusted').checked;
   }
-  function closeEditor(apply) {
+  // A frame grab takes a moment; closing waits for it, so a quick "cover, then Done" never loses the frame
+  var pending = Promise.resolve();
+  function closeEditor(apply) { var go = function () { finishEditor(apply); }; pending.then(go, go); }
+  function finishEditor(apply) {
     if (apply && cur === SR) {
       var id = vimeoId($('fVimeo').value);
       if (!id) { showTab('info'); toast('Вставте посилання на шоурил у Vimeo.', 'err'); return; }
@@ -704,7 +740,12 @@ function serializeSite(site) {
         if (!wm.cover.name) wm.cover.name = 'cover-' + Date.now().toString(36) + '.jpg';
         draft.showreel.cover = 'img/showreel/' + wm.cover.name;
         media[SR] = wm;
-      } else { draft.showreel.cover = saved.showreel.cover; delete media[SR]; }
+      } else { draft.showreel.cover = saved.showreel.cover; }
+      if (wm.preview) {
+        if (!wm.preview.name) wm.preview.name = 'loop-' + Date.now().toString(36) + '.' + wm.preview.ext;
+        draft.showreel.preview = 'img/showreel/' + wm.preview.name;
+      } else if (wm.pvRemoved) delete draft.showreel.preview;
+      if (wm.cover || wm.preview) media[SR] = wm; else delete media[SR];
       render(); video.pause(); dlg.close(); return;
     }
     if (apply) {
@@ -724,11 +765,20 @@ function serializeSite(site) {
         draft.projects[i] = wp;
       }
       // a new cover gets a new file name, so browsers show it right away
-      if (wm.cover) { if (!wm.cover.name) wm.cover.name = 'cover-' + Date.now().toString(36) + '.jpg'; wp.cover = wm.cover.name; }
-      else { var sp0 = proj(wp.slug, saved); if (sp0 && sp0.cover) wp.cover = sp0.cover; else delete wp.cover; }
+      // The small copy for cards sits next to it
+      if (wm.cover) {
+        if (!wm.cover.name) wm.cover.name = 'cover-' + Date.now().toString(36) + '.jpg';
+        wp.cover = wm.cover.name; wp.thumb = wm.cover.name.replace(/\.jpg$/, '.sm.jpg');
+      } else {
+        var sp0 = proj(wp.slug, saved);
+        if (sp0 && sp0.cover) wp.cover = sp0.cover; else delete wp.cover;
+        if (sp0 && sp0.thumb) wp.thumb = sp0.thumb; else delete wp.thumb;
+      }
+      if (wm.preview) { if (!wm.preview.name) wm.preview.name = 'p-' + Date.now().toString(36) + '.' + wm.preview.ext; wp.preview = wm.preview.name; }
+      else if (wm.pvRemoved) delete wp.preview;
       // keep frames list and media in sync
       Object.keys(wm.frames).forEach(function (name) { if (wp.frames.indexOf(name) < 0) delete wm.frames[name]; });
-      if (wm.cover || Object.keys(wm.frames).length) media[wp.slug] = wm; else delete media[wp.slug];
+      if (wm.cover || wm.preview || Object.keys(wm.frames).length) media[wp.slug] = wm; else delete media[wp.slug];
       // TRUSTED BY
       draft.clients = draft.clients || [];
       var at = draft.clients.indexOf(wp.client);
@@ -769,6 +819,13 @@ function serializeSite(site) {
     $('coverBox').innerHTML = src ? '<span class="ph">Немає обкладинки. Відкрийте відео й натисніть «Зробити обкладинкою».</span><img src="' + esc(src) + '" alt="Обкладинка" onerror="this.remove()" style="position:relative">'
       : '<span class="ph">Відкрийте відео й натисніть «Зробити обкладинкою».</span>';
     $('coverReset').hidden = !wm.cover || !cur;
+    var pvSrc = wm.preview ? wm.preview.url : wm.pvRemoved ? '' :
+      cur === SR ? (draft.showreel.preview ? '../' + draft.showreel.preview + '?v=' + ver : '') :
+      (cur && wp.preview ? imgUrl(cur, wp.preview) : '');
+    $('pvBox').classList.toggle('v', v);
+    $('pvBox').innerHTML = pvSrc ? '<video src="' + esc(pvSrc) + '" muted loop autoplay playsinline></video>'
+      : '<span class="ph">Превʼю ще немає.</span>';
+    $('pvRemove').hidden = !pvSrc;
     if (cur === SR) return;
     $('tray').innerHTML = wp.frames.length ? wp.frames.map(function (f, i) {
       return '<div class="fr"><img src="' + esc(frameUrl(f)) + '" alt="Кадр ' + (i + 1) + '">' +
@@ -779,6 +836,7 @@ function serializeSite(site) {
     $('fcount').textContent = wp.frames.length ? '(' + wp.frames.length + ')' : '';
   }
   $('coverReset').addEventListener('click', function () { wm.cover = null; drawMedia(); });
+  $('pvRemove').addEventListener('click', function () { wm.preview = null; wm.pvRemoved = true; drawMedia(); });
   $('tray').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     var i, fr = wp.frames;
@@ -793,7 +851,7 @@ function serializeSite(site) {
     video.pause();
     if (video.src) { URL.revokeObjectURL(video.src); video.removeAttribute('src'); video.load(); }
     video.hidden = true; $('drop').hidden = false; $('otherFile').hidden = true;
-    ['play', 'back1s', 'backF', 'fwdF', 'fwd1s', 'setCover', 'addFrame'].forEach(function (id) { $(id).disabled = true; });
+    ['play', 'back1s', 'backF', 'fwdF', 'fwd1s', 'setCover', 'addFrame', 'pvRec'].forEach(function (id) { $(id).disabled = true; });
     scrub.disabled = true; scrub.value = 0; $('tc').textContent = '00:00:00:00';
   }
   function loadVideo(file) {
@@ -808,7 +866,7 @@ function serializeSite(site) {
   stage.addEventListener('dragleave', function () { $('drop').classList.remove('over'); });
   stage.addEventListener('drop', function (e) { e.preventDefault(); $('drop').classList.remove('over'); loadVideo(e.dataTransfer.files[0]); });
   video.addEventListener('loadedmetadata', function () {
-    ['play', 'back1s', 'backF', 'fwdF', 'fwd1s', 'setCover', 'addFrame'].forEach(function (id) { $(id).disabled = false; });
+    ['play', 'back1s', 'backF', 'fwdF', 'fwd1s', 'setCover', 'addFrame', 'pvRec'].forEach(function (id) { $(id).disabled = false; });
     scrub.disabled = false; video.currentTime = Math.min(1, video.duration / 2);
   });
   function fps() { return parseFloat($('fps').value); }
@@ -838,16 +896,79 @@ function serializeSite(site) {
     if (k === ' ') { e.preventDefault(); $('play').click(); }
     else if (k === 'ArrowLeft') { e.preventDefault(); seek(video.currentTime - (e.shiftKey ? 1 : 1 / fps())); }
     else if (k === 'ArrowRight') { e.preventDefault(); seek(video.currentTime + (e.shiftKey ? 1 : 1 / fps())); }
-    else if (/^[cCсС]$/.test(k)) grab().then(setCover);
-    else if (/^[fFаА]$/.test(k) && cur !== SR) grab().then(addFrame);
+    else if (/^[cCсС]$/.test(k)) (pending = grab().then(setCover));
+    else if (/^[fFаА]$/.test(k) && cur !== SR) (pending = grab().then(addFrame));
   });
   function grab() {
     video.pause();
     var w = video.videoWidth, h = video.videoHeight, s = Math.min(1, 1600 / Math.max(w, h));
     var c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
     var ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(video, 0, 0, c.width, c.height);
-    return new Promise(function (res) { c.toBlob(function (b) { res({ blob: b, url: URL.createObjectURL(b) }); }, 'image/jpeg', 0.86); });
+    // small copy for cards: 800 px wide for 16:9, 540 px for vertical
+    var sw = Math.min(c.width, h > w ? 540 : 800), c2 = document.createElement('canvas');
+    c2.width = sw; c2.height = Math.round(c.height * sw / c.width);
+    var x2 = c2.getContext('2d'); x2.imageSmoothingQuality = 'high'; x2.drawImage(c, 0, 0, c2.width, c2.height);
+    return new Promise(function (res) {
+      c.toBlob(function (b) { c2.toBlob(function (b2) { res({ blob: b, url: URL.createObjectURL(b), sm: b2 }); }, 'image/jpeg', 0.8); }, 'image/jpeg', 0.86);
+    });
   }
+
+  /* Preview clip: the chosen fragment is re-recorded small and silent, right in the browser */
+  function recType() {
+    var t = ['video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+    if (!window.MediaRecorder) return '';
+    for (var i = 0; i < t.length; i++) if (MediaRecorder.isTypeSupported(t[i])) return t[i];
+    return '';
+  }
+  var recording = false;
+  function recordPreview(seconds, longSide, bitrate, onProgress) {
+    return new Promise(function (res, rej) {
+      var type = recType();
+      if (!type || !HTMLCanvasElement.prototype.captureStream) { rej(new Error('цей браузер не вміє записувати відео. Відкрийте адмінку в Chrome')); return; }
+      var w = video.videoWidth, h = video.videoHeight, s = Math.min(1, longSide / Math.max(w, h));
+      var c = document.createElement('canvas'); c.width = Math.round(w * s / 2) * 2; c.height = Math.round(h * s / 2) * 2;
+      var ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high';
+      var start = video.currentTime, end = Math.min(video.duration, start + seconds);
+      if (end - start < 0.5) { rej(new Error('до кінця відео лишилось замало. Поставте відео раніше')); return; }
+      ctx.drawImage(video, 0, 0, c.width, c.height);
+      var stream = c.captureStream(30), rec, chunks = [], done = false;
+      try { rec = new MediaRecorder(stream, { mimeType: type, videoBitsPerSecond: bitrate }); } catch (e) { rej(e); return; }
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onerror = function () { rej(new Error('запис перервався')); };
+      rec.onstop = function () {
+        stream.getTracks().forEach(function (t) { t.stop(); });
+        video.currentTime = start;
+        var blob = new Blob(chunks, { type: type.split(';')[0] });
+        if (!blob.size) { rej(new Error('запис вийшов порожнім')); return; }
+        res({ blob: blob, url: URL.createObjectURL(blob), ext: /mp4/.test(type) ? 'mp4' : 'webm' });
+      };
+      var finish = function () { if (done) return; done = true; video.pause(); if (rec.state !== 'inactive') rec.stop(); };
+      var draw = function () {
+        if (done) return;
+        ctx.drawImage(video, 0, 0, c.width, c.height);
+        onProgress(Math.min(1, (video.currentTime - start) / (end - start)));
+        if (video.currentTime >= end - 0.04 || video.ended) { finish(); return; }
+        requestAnimationFrame(draw);
+      };
+      video.muted = true;
+      rec.start(250);
+      var pr = video.play();
+      (pr && pr.then ? pr : Promise.resolve()).then(function () { requestAnimationFrame(draw); }, function (e) { finish(); rej(e); });
+      setTimeout(finish, (end - start) * 1000 + 6000);
+    });
+  }
+  $('pvRec').addEventListener('click', function () {
+    if (recording) return;
+    recording = true;
+    var btn = $('pvRec'), label = btn.textContent, isSr = cur === SR;
+    btn.disabled = true;
+    recordPreview(parseFloat($('pvLen').value), isSr ? 1280 : 720, isSr ? 2000000 : 1100000, function (k) { btn.textContent = 'Записую… ' + Math.round(k * 100) + '%'; })
+      .then(function (clip) {
+        wm.preview = clip; wm.pvRemoved = false; drawMedia();
+        toast('Превʼю готове: ' + (clip.blob.size / 1048576).toFixed(1) + ' МБ', 'ok', 3000);
+      }, function (e) { toast('Не вдалося записати превʼю: ' + e.message + '.', 'err', 7000); })
+      .then(function () { recording = false; btn.textContent = label; btn.disabled = video.hidden; });
+  });
   function setCover(f) { wm.cover = f; drawMedia(); toast('Обкладинку вибрано: ' + tc(video.currentTime), 'ok', 2000); }
   var fn = 0;
   function addFrame(f) {
@@ -855,19 +976,30 @@ function serializeSite(site) {
     wm.frames[name] = f; wp.frames.push(name); drawMedia();
     toast('Кадр додано: ' + tc(video.currentTime), 'ok', 2000);
   }
-  $('setCover').addEventListener('click', function () { grab().then(setCover); });
-  $('addFrame').addEventListener('click', function () { grab().then(addFrame); });
+  $('setCover').addEventListener('click', function () { (pending = grab().then(setCover)); });
+  $('addFrame').addEventListener('click', function () { (pending = grab().then(addFrame)); });
 
   $('addProject').addEventListener('click', function () { openEditor(null); });
+  $('gcCode').addEventListener('input', function () {
+    var code = $('gcCode').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\.goatcounter\.com.*$/, '').replace(/[^a-z0-9-]/g, '');
+    if (code) draft.analytics = { goatcounter: code }; else delete draft.analytics;
+    $('gcLink').textContent = (code || 'ваш-код') + '.goatcounter.com';
+    syncButtons();
+  });
 
   /* ---------------- Publish ---------------- */
   $('publish').addEventListener('click', function () {
     var btn = $('publish'); btn.disabled = true; btn.textContent = 'Публікую…';
+    $('board').inert = true; // no edits until the fresh state is loaded back
     var writes = [], deletes = [];
     Object.keys(media).forEach(function (slug) {
       var p = proj(slug); if (!p) return;
       var m = media[slug];
-      if (m.cover) writes.push({ path: 'img/' + slug + '/' + p.cover, blob: m.cover.blob });
+      if (m.cover) {
+        writes.push({ path: 'img/' + slug + '/' + p.cover, blob: m.cover.blob });
+        if (m.cover.sm && p.thumb) writes.push({ path: 'img/' + slug + '/' + p.thumb, blob: m.cover.sm });
+      }
+      if (m.preview && p.preview === m.preview.name) writes.push({ path: 'img/' + slug + '/' + p.preview, blob: m.preview.blob });
       Object.keys(m.frames).forEach(function (name) {
         if (p.frames.indexOf(name) >= 0) writes.push({ path: 'img/' + slug + '/' + name, blob: m.frames[name].blob });
       });
@@ -878,8 +1010,11 @@ function serializeSite(site) {
       writes.push({ path: 'img/showreel/cover.jpg', blob: media[SR].cover.blob });
       if (saved.showreel.cover && saved.showreel.cover !== draft.showreel.cover && !/\/cover\.jpg$/.test(saved.showreel.cover)) deletes.push(saved.showreel.cover);
     }
+    if (media[SR] && media[SR].preview) writes.push({ path: draft.showreel.preview, blob: media[SR].preview.blob });
+    if (saved.showreel.preview && saved.showreel.preview !== draft.showreel.preview) deletes.push(saved.showreel.preview);
     saved.projects.forEach(function (sp) {
       var dp = proj(sp.slug);
+      ['thumb', 'preview'].forEach(function (k) { if (sp[k] && (!dp || dp[k] !== sp[k])) deletes.push('img/' + sp.slug + '/' + sp[k]); });
       var sc = sp.cover || 'cover.jpg';
       if (dp && (dp.cover || 'cover.jpg') !== sc) deletes.push('img/' + sp.slug + '/' + sc);
       if (!dp) { deletes.push('img/' + sp.slug + '/' + sc); (sp.frames || []).forEach(function (f) { deletes.push('img/' + sp.slug + '/' + f); }); return; }
@@ -890,6 +1025,15 @@ function serializeSite(site) {
       var out = serializeSite(draft);
       parseSite(out); // safety check before writing
       writes.push({ path: 'data/site.js', text: out });
+      // Map of the site for search engines, rebuilt on every publish
+      var base = siteBase();
+      if (base) {
+        var x = function (u) { return u.replace(/&/g, '&amp;'); };
+        var urls = [base].concat(draft.order.map(function (sl) { return base + 'project.html?p=' + encodeURIComponent(sl); }));
+        writes.push({ path: 'sitemap.xml', text: '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+          urls.map(function (u) { return '  <url><loc>' + x(u) + '</loc></url>'; }).join('\n') + '\n</urlset>\n' });
+        writes.push({ path: 'robots.txt', text: 'User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: ' + base + 'sitemap.xml\n' });
+      }
       return store.commit(writes, deletes, 'Update portfolio from admin');
     }).then(function () {
       ver = Date.now();
@@ -898,8 +1042,13 @@ function serializeSite(site) {
     }).catch(function (err) {
       toast('Не вдалося опублікувати: ' + err.message, 'err', 8000);
       syncButtons();
-    });
+    }).then(function () { $('board').inert = false; });
   });
+  // Public address of the site, worked out from where the admin panel is opened
+  function siteBase() {
+    if (!/^https:$/.test(location.protocol) || /^(localhost|127\.)/.test(location.hostname)) return '';
+    return location.origin + location.pathname.replace(/admin\/(index\.html)?$/, '');
+  }
   $('discard').addEventListener('click', function () {
     if (!window.confirm('Скасувати всі неопубліковані зміни?')) return;
     draft = clone(saved); media = {}; render();
