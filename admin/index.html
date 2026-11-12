@@ -393,6 +393,7 @@ function serializeSite(site) {
     function api(path, opts) {
       opts = opts || {};
       opts.headers = Object.assign({ Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, opts.headers || {});
+      opts.cache = 'no-store'; // GitHub lets browsers cache reads for a minute; a stale read would lose edits
       return fetch(base + path, opts).then(function (r) {
         if (!r.ok) return r.json().catch(function () { return {}; }).then(function (j) {
           var m = j.message || ('HTTP ' + r.status);
@@ -405,8 +406,10 @@ function serializeSite(site) {
         return opts.headers.Accept === 'application/vnd.github.raw' ? r.text() : r.json();
       });
     }
+    var last = null; // { prev, commit, tree } of the commit this panel made most recently
     function head() {
       return api('/git/ref/heads/' + branch).then(function (ref) {
+        if (last && ref.object.sha === last.prev) return { commit: last.commit, tree: last.tree };
         return api('/git/commits/' + ref.object.sha).then(function (c) { return { commit: ref.object.sha, tree: c.tree.sha }; });
       });
     }
@@ -422,6 +425,10 @@ function serializeSite(site) {
             if (!hit) throw new Error('у репозиторії не знайдено data/site.js');
             prefix = hit.path.replace(/data\/site\.js$/, '');
           });
+      },
+      listFiles: function () {
+        return head().then(function (h) { return api('/git/trees/' + h.tree + '?recursive=1'); })
+          .then(function (t) { return t.tree.map(function (e) { return e.path; }).filter(function (x) { return x.indexOf(prefix) === 0; }).map(function (x) { return x.slice(prefix.length); }); });
       },
       readSite: function () {
         return head().then(function (h) {
@@ -445,8 +452,13 @@ function serializeSite(site) {
               return api('/git/trees', { method: 'POST', body: JSON.stringify({ base_tree: h.tree, tree: entries }) });
             });
           })
-          .then(function (tree) { return api('/git/commits', { method: 'POST', body: JSON.stringify({ message: message, tree: tree.sha, parents: [h.commit] }) }); })
-          .then(function (c) { return api('/git/refs/heads/' + branch, { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) }); });
+          .then(function (tree) {
+            return api('/git/commits', { method: 'POST', body: JSON.stringify({ message: message, tree: tree.sha, parents: [h.commit] }) })
+              .then(function (c) {
+                return api('/git/refs/heads/' + branch, { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) })
+                  .then(function () { last = { prev: h.commit, commit: c.sha, tree: tree.sha }; });
+              });
+          });
       }
     };
   }
@@ -508,7 +520,28 @@ function serializeSite(site) {
       draft = clone(saved);
       media = {};
       render();
+      return relink();
     });
+  }
+  // A preview clip that sits in the repository but is not referenced in site.js is linked back
+  function relink() {
+    if (!store.listFiles) return;
+    return store.listFiles().then(function (files) {
+      var newest = function (dir, re) {
+        return files.filter(function (f) { return f.indexOf(dir) === 0 && re.test(f.slice(dir.length)); }).sort().pop();
+      };
+      var n = 0;
+      draft.projects.forEach(function (p) {
+        if (p.preview) return;
+        var f = newest('img/' + p.slug + '/', /^p-[a-z0-9]+\.(mp4|webm)$/);
+        if (f) { p.preview = f.split('/').pop(); n++; }
+      });
+      if (!draft.showreel.preview) {
+        var l = newest('img/showreel/', /^loop-[a-z0-9]+\.(mp4|webm)$/);
+        if (l) { draft.showreel.preview = l; n++; }
+      }
+      if (n) { render(); toast('Знайшов записані превʼю, які загубили привʼязку (' + n + '). Натисніть «Опублікувати», щоб повернути їх на сайт.', 'ok', 9000); }
+    }).catch(function () {});
   }
   function proj(slug, site) { return (site || draft).projects.filter(function (p) { return p.slug === slug; })[0]; }
   function changedSlugs() {
@@ -989,7 +1022,7 @@ function serializeSite(site) {
 
   /* ---------------- Publish ---------------- */
   $('publish').addEventListener('click', function () {
-    var btn = $('publish'); btn.disabled = true; btn.textContent = 'Публікую…';
+    var btn = $('publish'), published = ''; btn.disabled = true; btn.textContent = 'Публікую…';
     $('board').inert = true; // no edits until the fresh state is loaded back
     var writes = [], deletes = [];
     Object.keys(media).forEach(function (slug) {
@@ -1024,6 +1057,7 @@ function serializeSite(site) {
       if (text !== loadedText && !window.confirm('data/site.js на GitHub змінився після того, як ви відкрили адмінку (можливо, ви редагували його вручну). Перезаписати його вашими змінами з адмінки?')) throw new Error('скасовано');
       var out = serializeSite(draft);
       parseSite(out); // safety check before writing
+      published = out;
       writes.push({ path: 'data/site.js', text: out });
       // Map of the site for search engines, rebuilt on every publish
       var base = siteBase();
@@ -1038,7 +1072,9 @@ function serializeSite(site) {
     }).then(function () {
       ver = Date.now();
       toast(store.isGit ? 'Опубліковано. Сайт оновиться за 1–2 хвилини.' : 'Збережено в папку сайту.', 'ok', 6000);
-      return loadSite();
+      // What was just written is the new published state; no read-back that could return an older copy
+      loadedText = published; saved = normalizeOrder(parseSite(published)); draft = clone(saved); media = {};
+      render();
     }).catch(function (err) {
       toast('Не вдалося опублікувати: ' + err.message, 'err', 8000);
       syncButtons();
