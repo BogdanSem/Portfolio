@@ -408,5 +408,6 @@ window.SITE = {
       thumb: "cover.sm.jpg",
       preview: "p-mwdkf90x.mp4"
     }
-  ]
+  ],
+  analytics: { goatcounter: "bohdansemchyshyn" }
 };
