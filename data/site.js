@@ -10,8 +10,12 @@
     parent    – slug of the main project this video belongs to (optional)
     brief, did – texts for "The brief" and "What I did" (empty hides the block)
     frames    – file names of stills in img/<slug>/
+    cover, thumb – cover image and its small copy for cards (set by the admin panel)
+    preview   – short silent clip that plays on hover (set by the admin panel)
     quote     – optional { text, source }
   order: the order of projects on the site.
+  showreel.preview: silent loop that plays as soon as the page opens.
+  analytics.goatcounter: code of the GoatCounter visitor counter (optional).
 */
 window.SITE = {
   name: "Bohdan Semchyshyn",
@@ -23,7 +27,12 @@ window.SITE = {
     linkedin: "https://www.linkedin.com/in/bohdan-semchyshyn",
     instagram: "https://www.instagram.com/semchyshyn_b"
   },
-  showreel: { vimeo: "1219844988", cover: "img/showreel/cover-mvtn5dj6.jpg", length: "0:30" },
+  showreel: {
+    vimeo: "1219844988",
+    cover: "img/showreel/cover-mvtn5dj6.jpg",
+    length: "0:30",
+    preview: "img/showreel/loop-mwdk89wx.mp4"
+  },
   clients: ["Carlotti Paris", "Sanctum Digital", "Little Red Door", "Scott Marshall Injury Attorneys", "Evidence Strong Show", "UON.EARTH", "Nightlife Card", "CleverBiz AI", "Innerspace"],
   reviews: [
     {
