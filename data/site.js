@@ -127,7 +127,8 @@ window.SITE = {
       brief: "A short fashion film on a clean high-key set.",
       did: "Graded in DaVinci Resolve with careful control of highlights and skin tone, then retouched frame by frame (skin, even tone, makeup, blemishes) for an editorial finish.",
       frames: ["fmvtknzka.jpg", "fmvtko1hf.jpg", "fmvtko3wv.jpg", "fmvtko5ne.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkqul2.mp4"
     },
     {
       slug: "lrd-new-york",
@@ -144,7 +145,8 @@ window.SITE = {
       did: "Editing, precise color, smooth transitions and graphics.",
       frames: ["fmvtkp0wx.jpg", "fmvtkpa3n.jpg", "fmvtkpcfs.jpg", "fmvtkpeul.jpg", "fmvtkphao.jpg", "fmvtkpjtk.jpg", "fmvtkppty.jpg", "fmvtkptnv.jpg"],
       parent: "lrd-interviews",
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkudv8.mp4"
     },
     {
       slug: "lrd-washington",
@@ -161,7 +163,8 @@ window.SITE = {
       brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
       did: "Editing, precise color, smooth transitions and graphics.",
       frames: ["fmvtm3qjd0.jpg", "fmvtm3sni1.jpg", "fmvtm3y9m2.jpg", "fmvtm40973.jpg", "fmvtm42ff4.jpg", "fmvtm44ra5.jpg", "fmvtm46ck6.jpg", "fmvtm4bwh7.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkv0sh.mp4"
     },
     {
       slug: "lrd-mexico-city",
@@ -178,7 +181,8 @@ window.SITE = {
       brief: "A series about the bar team's trips: local farms, markets, bars and cocktails.",
       did: "Editing, precise color, smooth transitions and graphics.",
       frames: ["fmvtmbtk58.jpg", "fmvtmbwt99.jpg", "fmvtmby330.jpg", "fmvtmc08s1.jpg", "fmvtmc6kq3.jpg", "fmvtmc8rv4.jpg", "fmvtmce355.jpg", "fmvtmcgvl6.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkvxqi.mp4"
     },
     {
       slug: "vocations",
@@ -211,7 +215,8 @@ window.SITE = {
       brief: "Short videos for a brand that protects the planet square metre by square metre: anyone can protect a real m² of nature from €1.20.",
       did: "Edited and graded for social: a clean, natural, earthy look that stays warm and on-brand but bright enough to stop the scroll.",
       frames: ["fmvtkqhrg.jpg", "fmvtkqjff.jpg", "fmvtkqokv.jpg", "fmvtkqtzs.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkwexs.mp4"
     },
     {
       slug: "sanctum-promo",
@@ -227,7 +232,8 @@ window.SITE = {
       brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
       did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
       frames: ["fmvtkrqys.jpg", "fmvtkrt9k.jpg", "fmvtkrxxf.jpg", "fmvtks2yv.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkx33o.mp4"
     },
     {
       slug: "sanctum-app-ad",
@@ -244,7 +250,8 @@ window.SITE = {
       brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
       did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
       frames: ["fmvtmda1q7.jpg", "fmvtmdbq28.jpg", "fmvtmddes9.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdksa9j.mp4"
     },
     {
       slug: "sanctum-launch",
@@ -261,7 +268,8 @@ window.SITE = {
       brief: "Promo for a wellness app built around movement, breathwork and music, with a two-week free trial offer.",
       did: "Edited for social: tight pacing, clean transitions and app screen mockups that show the product in action and drive downloads.",
       frames: ["fmvtmimiw0.jpg", "fmvtmipb01.jpg", "fmvtmir5d2.jpg", "fmvtmisuw3.jpg", "fmvtmiv3q4.jpg", "fmvtmixbo5.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkxoys.mp4"
     },
     {
       slug: "evidence-strong",
@@ -295,7 +303,8 @@ window.SITE = {
       brief: "A podcast about evidence-based training. Every interview becomes a full YouTube episode and a set of shorts for Instagram.",
       did: "I edit and switch cameras on the interview, grade it, and cut shorts with captions and on-brand design.",
       frames: [],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkqcax.mp4"
     },
     {
       slug: "nightlife-card",
@@ -311,7 +320,8 @@ window.SITE = {
       brief: "An ad for the Nightlife Card app: a night out in London for a fraction of the price, from pizza and mini golf to cocktails and a club.",
       did: "",
       frames: ["fmvtkswom.jpg", "fmvtkt1q9.jpg", "fmvtkt9wu.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkysd0.mp4"
     },
     {
       slug: "cleverbiz-the-build",
@@ -327,7 +337,8 @@ window.SITE = {
       brief: "The first episode of “The Build”: a founder's story from Thailand to Dubai, made for Instagram and TikTok.",
       did: "Edit, color and titles, refined over several rounds of client feedback.",
       frames: ["fmvtku186.jpg", "fmvtku628.jpg", "fmvtku85j.jpg", "fmvtkuapf.jpg", "fmvtkuep0.jpg", "fmvtkujuq.jpg", "fmvtkusi4.jpg", "fmvtkupn3.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkri7p.mp4"
     },
     {
       slug: "jack-the-grower",
@@ -343,7 +354,8 @@ window.SITE = {
       brief: "An ad for an online shop selling dahlia bulbs, with a promo code for the first order.",
       did: "A fast-paced edit with kinetic typography over live footage of the flowers.",
       frames: ["fmvtkv9i5.jpg", "fmvtkvlj9.jpg", "fmvtkvgek.jpg", "fmvtkvop5.jpg", "fmvtkvqby.jpg", "fmvtkvtt2.jpg", "fmvtkvwer.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdktk0k.mp4"
     },
     {
       slug: "youtube-leo",
@@ -376,7 +388,8 @@ window.SITE = {
       brief: "Interview reels with bar owners in a four-question format: Nicolas Torres of True Laurel and Matt Wiley of RE.",
       did: "",
       frames: ["fmvtkwa7o.jpg", "fmvtkwod3.jpg", "fmvtkwix9.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkz7x6.mp4"
     },
     {
       slug: "youtube-business-fr",
