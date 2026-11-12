@@ -27,7 +27,12 @@ window.SITE = {
     linkedin: "https://www.linkedin.com/in/bohdan-semchyshyn",
     instagram: "https://www.instagram.com/semchyshyn_b"
   },
-  showreel: { vimeo: "1219844988", cover: "img/showreel/cover-mvtn5dj6.jpg", length: "0:30" },
+  showreel: {
+    vimeo: "1219844988",
+    cover: "img/showreel/cover-mvtn5dj6.jpg",
+    length: "0:30",
+    preview: "img/showreel/loop-mwdk89wx.mp4"
+  },
   clients: ["Carlotti Paris", "Sanctum Digital", "Little Red Door", "Scott Marshall Injury Attorneys", "Evidence Strong Show", "UON.EARTH", "Nightlife Card", "CleverBiz AI", "Innerspace"],
   reviews: [
     {
@@ -85,7 +90,7 @@ window.SITE = {
       did: "",
       frames: ["01.jpg", "02.jpg", "fmvtkgwh8.jpg", "04.jpg", "fmvtkhjkp.jpg", "fmvtkhdwu.jpg"],
       thumb: "cover.sm.jpg",
-      preview: "p-mwdkalc8.mp4"
+      preview: "p-mwdkc0lx.mp4"
     },
     {
       slug: "scott-marshall",
@@ -105,7 +110,8 @@ window.SITE = {
         text: "Bohdan is an expert in color grading. Quick, efficient, does quality work!",
         source: "Upwork review, 2025"
       },
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkd1by.mp4"
     },
     {
       slug: "innerspace",
@@ -188,7 +194,8 @@ window.SITE = {
       brief: "Trailer for a documentary about women in construction and craft trades.",
       did: "I graded the documentary. The footage came with many technical problems, and I solved them to reach a clean, consistent result.",
       frames: ["fmvtkjvo2.jpg", "fmvtkjy6c.jpg", "fmvtkk20w.jpg", "fmvtkk6ch.jpg", "fmvtkke36.jpg", "fmvtkkhg9.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkdjir.mp4"
     },
     {
       slug: "uon-earth",
@@ -270,7 +277,8 @@ window.SITE = {
       brief: "A podcast about evidence-based training. Every interview becomes a full YouTube episode and a set of shorts for Instagram.",
       did: "I edit and switch cameras on the interview, grade it, and cut shorts with captions and on-brand design.",
       frames: ["01.jpg", "02.jpg", "fmvtkkvll.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdke1km.mp4"
     },
     {
       slug: "evidence-strong-reels",
@@ -351,7 +359,8 @@ window.SITE = {
       brief: "A studio talking-head video with icons and graphic inserts, plus short vertical cuts.",
       did: "",
       frames: ["fmvtklnis.jpg", "fmvtklq6b.jpg", "fmvtkluaa.jpg", "fmvtklwu4.jpg", "fmvtklynr.jpg", "fmvtkm4df.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkerol.mp4"
     },
     {
       slug: "lrd-interviews",
@@ -383,7 +392,8 @@ window.SITE = {
       brief: "A French-language YouTube video about scaling a business, with animated graphics.",
       did: "",
       frames: ["fmvtkmn75.jpg", "fmvtkmq3z.jpg", "fmvtkmrsz.jpg", "fmvtkmtqi.jpg", "fmvtkmwpc.jpg", "fmvtkn56k.jpg"],
-      thumb: "cover.sm.jpg"
+      thumb: "cover.sm.jpg",
+      preview: "p-mwdkf90x.mp4"
     }
   ]
 };
